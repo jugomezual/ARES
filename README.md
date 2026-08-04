@@ -1,8 +1,7 @@
 # ARES — Automated Red-team Exploit System
 
-**Author:** miker-codes  
+**Author:**  Miguel Ruíz Ramírez and Julio Gómez López  
 **Platform:** Kali Linux  
-**Bachelor's Thesis (TFG) — Computer Engineering Degree, University of Almería**
 
 ---
 
