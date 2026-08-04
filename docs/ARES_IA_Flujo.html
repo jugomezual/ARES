@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>ARES — Integración IA: Flujo Completo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--muted:#8b949e;
+      --green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#e3b341;--red:#f85149;--accent:#00ffc3;--pink:#f9a8d4;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    .page{padding:2.5rem 3rem;page-break-after:always;min-height:100vh;}
+    .page:last-child{page-break-after:auto;}
+    /* PORTADA */
+    .cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#0d1117 100%);
+      padding:3rem;page-break-after:always;text-align:center;position:relative;overflow:hidden;}
+    .cover::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;
+      background:radial-gradient(circle,rgba(0,255,195,0.07) 0%,transparent 70%);
+      top:50%;left:50%;transform:translate(-50%,-50%);}
+    .cover-badge{background:rgba(0,255,195,0.1);border:1px solid rgba(0,255,195,0.3);color:var(--accent);
+      padding:.3rem 1rem;border-radius:20px;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem;}
+    .cover h1{font-size:3.5rem;font-weight:700;letter-spacing:-1px;margin-bottom:.5rem;
+      background:linear-gradient(135deg,var(--accent) 0%,var(--purple) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .cover h2{font-size:1.2rem;font-weight:400;color:var(--muted);margin-bottom:3rem;}
+    .cover-divider{width:80px;height:2px;background:linear-gradient(90deg,var(--accent),var(--purple));margin:2rem auto;border-radius:2px;}
+    .cover-meta{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;}
+    .cover-meta-item .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:.3rem;}
+    .cover-meta-item .value{font-size:14px;font-weight:600;color:var(--text);}
+    .cover-stack{display:flex;gap:.5rem;margin-top:2.5rem;flex-wrap:wrap;justify-content:center;}
+    .cover-tag{padding:.3rem .8rem;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500;}
+    /* SECTION HEADER */
+    .section-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);}
+    .phase-badge{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:14px;font-weight:700;flex-shrink:0;}
+    .section-header h2{font-size:1.3rem;font-weight:700;}
+    .section-header .subtitle{font-size:.82rem;color:var(--muted);}
+    /* CARDS */
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1rem;}
+    .card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.8rem;}
+    /* TABLES */
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    th{background:var(--bg3);color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:.6rem 1rem;text-align:left;border-bottom:1px solid var(--border);}
+    td{padding:.7rem 1rem;border-bottom:1px solid rgba(48,54,61,0.5);vertical-align:top;}
+    tr:last-child td{border-bottom:none;}
+    /* BADGES */
+    .badge{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+    /* CALLOUTS */
+    .callout{border-left:3px solid;padding:.8rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:12px;}
+    .callout-title{font-weight:700;font-size:12px;margin-bottom:.3rem;}
+    /* CODE */
+    .code-block{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;
+      font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;margin:.6rem 0;}
+    .c-green{color:var(--green);}.c-blue{color:var(--blue);}.c-purple{color:var(--purple);}
+    .c-yellow{color:var(--yellow);}.c-red{color:var(--red);}.c-muted{color:var(--muted);}
+    .c-accent{color:var(--accent);}.c-pink{color:var(--pink);}
+    /* GRID */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+    /* UTILS */
+    .mt-1{margin-top:.5rem;}.mt-2{margin-top:1rem;}.mt-3{margin-top:1.5rem;}
+    .mb-1{margin-bottom:.5rem;}.mb-2{margin-bottom:1rem;}
+    .text-accent{color:var(--accent);}.text-purple{color:var(--purple);}.text-blue{color:var(--blue);}
+    .text-green{color:var(--green);}.text-yellow{color:var(--yellow);}.text-red{color:var(--red);}
+    .text-muted{color:var(--muted);}.text-pink{color:var(--pink);}.text-sm{font-size:11.5px;}.text-xs{font-size:10.5px;}
+    .bold{font-weight:700;}
+    /* SWIMLANE */
+    .swimlane-wrap{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .swimlane{display:flex;min-height:64px;}
+    .swimlane-label{width:95px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+      writing-mode:vertical-rl;font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:.5rem;}
+    .swimlane-body{flex:1;padding:.65rem .9rem;border-left:1px solid var(--border);display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;}
+    /* PROC BOX */
+    .proc{border:1.5px solid;border-radius:8px;padding:.45rem .85rem;font-size:11.5px;font-weight:600;text-align:center;flex-shrink:0;}
+    /* DECISION DIAMOND */
+    .decision{clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);display:flex;align-items:center;
+      justify-content:center;font-size:9.5px;font-weight:700;text-align:center;line-height:1.3;flex-shrink:0;}
+    /* EVENT CIRCLE */
+    .event{border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:700;text-align:center;border:2.5px solid;flex-shrink:0;}
+    /* CONNECTOR */
+    .conn-h{height:2px;background:var(--border);flex-shrink:0;}
+    /* PIPELINE */
+    .pipeline{display:flex;align-items:stretch;border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+    .pipe-step{flex:1;padding:.8rem .5rem;text-align:center;border-right:1px solid var(--border);position:relative;}
+    .pipe-step:last-child{border-right:none;}
+    .pipe-step::after{content:'▶';position:absolute;right:-9px;top:50%;transform:translateY(-50%);
+      font-size:11px;color:var(--border);z-index:2;background:var(--bg);}
+    .pipe-step:last-child::after{display:none;}
+    .pipe-num{font-size:20px;font-weight:800;margin-bottom:.3rem;}
+    .pipe-label{font-size:10.5px;font-weight:700;margin-bottom:.2rem;}
+    .pipe-sub{font-size:9px;color:var(--muted);}
+    @media print{body{background:#0d1117!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.page,.cover{page-break-after:always;}}
+  </style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <div class="cover-badge">Trabajo de Fin de Grado &middot; Documentación Técnica</div>
+  <h1>ARES</h1>
+  <h2>Integración de Inteligencia Artificial &mdash; Flujo Completo</h2>
+  <div class="cover-divider"></div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><div class="label">Plataforma</div><div class="value">ARES &mdash; Semi-Automated Pentesting</div></div>
+    <div class="cover-meta-item"><div class="label">Modelo IA</div><div class="value">Qwen2.5-7B-CyberSecurity (Ollama)</div></div>
+    <div class="cover-meta-item"><div class="label">Fecha</div><div class="value">Abril 2026</div></div>
+  </div>
+  <div class="cover-stack">
+    <span class="cover-tag" style="background:rgba(0,255,195,0.1);color:#00ffc3;border:1px solid rgba(0,255,195,0.3)">React</span>
+    <span class="cover-tag" style="background:rgba(88,166,255,0.1);color:#58a6ff;border:1px solid rgba(88,166,255,0.3)">Node.js / Express</span>
+    <span class="cover-tag" style="background:rgba(188,140,255,0.1);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">Ollama</span>
+    <span class="cover-tag" style="background:rgba(227,179,65,0.1);color:#e3b341;border:1px solid rgba(227,179,65,0.3)">Metasploit</span>
+    <span class="cover-tag" style="background:rgba(248,81,73,0.1);color:#f85149;border:1px solid rgba(248,81,73,0.3)">Nmap</span>
+    <span class="cover-tag" style="background:rgba(57,211,83,0.1);color:#3fb950;border:1px solid rgba(57,211,83,0.3)">MySQL</span>
+  </div>
+</div>
+
+<!-- PAG A: ARQUITECTURA -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(0,255,195,0.15);color:#00ffc3">A</div>
+    <div><h2 style="color:#00ffc3">Arquitectura del Sistema</h2>
+    <div class="subtitle">Tres capas + modelo IA externo (servidor del profesor)</div></div>
+  </div>
+  <div class="swimlane-wrap mb-2">
+    <div class="swimlane" style="background:rgba(0,255,195,0.03)">
+      <div class="swimlane-label" style="background:rgba(0,255,195,0.12);color:#00ffc3">CAPA 1<br/>Frontend</div>
+      <div class="swimlane-body" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <div class="proc" style="border-color:#00ffc3;color:#00ffc3;background:rgba(0,255,195,0.08)">&#9883; React &mdash; AIAutoPwn.jsx</div>
+          <span class="text-muted text-xs" style="align-self:center">Puerto 5173 (Vite)</span>
+        </div>
+        <div class="text-xs text-muted">Interfaz del usuario &mdash; orquesta todo el flujo, muestra logs en tiempo real, botones de control.</div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(88,166,255,0.03)">
+      <div class="swimlane-label" style="background:rgba(88,166,255,0.12);color:#58a6ff">CAPA 2<br/>Backend</div>
+      <div class="swimlane-body" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.08);font-size:11px">&#9881; server.js</div>
+          <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.08);font-size:11px">&#128225; ia.js</div>
+          <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.08);font-size:11px">&#129504; ia_funciones_especificas.js</div>
+          <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.08);font-size:11px">&#9881; ia_config.js</div>
+        </div>
+        <div class="text-xs text-muted">API REST (puerto 3000) &mdash; construye prompts, llama a la IA, ejecuta binarios C.</div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(227,179,65,0.03)">
+      <div class="swimlane-label" style="background:rgba(227,179,65,0.12);color:#e3b341">CAPA 3<br/>Core C</div>
+      <div class="swimlane-body" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.08);font-size:11px">&#128269; network_scan</div>
+          <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.08);font-size:11px">&#128279; vpn_connect</div>
+          <span class="text-muted text-xs" style="align-self:center">Compilados con gcc</span>
+        </div>
+        <div class="text-xs text-muted">Binarios C &mdash; envuelven Nmap y Netcat. El backend los lanza con child_process.execFile().</div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(188,140,255,0.03)">
+      <div class="swimlane-label" style="background:rgba(188,140,255,0.12);color:#bc8cff">IA EXTERNA<br/>Profesor</div>
+      <div class="swimlane-body" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <div class="proc" style="border-color:#bc8cff;color:#bc8cff;background:rgba(188,140,255,0.08);font-size:11px">&#129504; Ollama &mdash; 10.0.1.4:11434</div>
+          <div class="proc" style="border-color:#bc8cff;color:#bc8cff;background:rgba(188,140,255,0.08);font-size:11px">qingmian/Qwen2.5-7B-CyberSecurity</div>
+        </div>
+        <div class="text-xs text-muted">LLM de 7.000M par&aacute;metros especializado en ciberseguridad. Se accede por HTTP.</div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(57,211,83,0.03)">
+      <div class="swimlane-label" style="background:rgba(57,211,83,0.12);color:#3fb950">BASE<br/>DE DATOS</div>
+      <div class="swimlane-body" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.08);font-size:11px">&#128452; exploit_attempt</div>
+          <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.08);font-size:11px">&#128452; exploit_session</div>
+          <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.08);font-size:11px">&#128452; hosts</div>
+        </div>
+        <div class="text-xs text-muted">MySQL &mdash; persiste el historial de ataques para que la IA aprenda entre sesiones.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Responsabilidad de cada fichero IA</div>
+    <table>
+      <thead><tr><th>Fichero</th><th>Rol</th><th>Analog&iacute;a</th></tr></thead>
+      <tbody>
+        <tr><td class="mono text-yellow">ia_config.js</td><td>Elige qu&eacute; motor IA usar: Ollama &check; / Gemini / OpenWebUI</td><td class="text-muted">Interruptor de configuraci&oacute;n</td></tr>
+        <tr><td class="mono text-yellow">ia.js</td><td>Env&iacute;a el prompt, recibe la respuesta, limpia el JSON, guarda el log</td><td class="text-muted">Cliente HTTP de la IA</td></tr>
+        <tr><td class="mono text-yellow">ia_funciones_especificas.js</td><td>Construye 6 prompts especializados para tareas de pentesting</td><td class="text-muted">Biblioteca de consultas IA</td></tr>
+        <tr><td class="mono text-yellow">server.js</td><td>Expone los endpoints REST /ai-* que consume el frontend</td><td class="text-muted">API Gateway</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAG B: FLUJO GENERAL -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(88,166,255,0.15);color:#58a6ff">B</div>
+    <div><h2 style="color:#58a6ff">Flujo General del Ataque IA</h2>
+    <div class="subtitle">5 fases + bifurcaci&oacute;n Fast Path vs Flujo Normal</div></div>
+  </div>
+  <div class="pipeline mb-2">
+    <div class="pipe-step" style="background:rgba(0,255,195,0.06)">
+      <div class="pipe-num" style="color:#00ffc3">1</div>
+      <div class="pipe-label" style="color:#00ffc3">Descubrimiento</div>
+      <div class="pipe-sub">nmap ping scan<br/>&rarr; lista de hosts</div>
+    </div>
+    <div class="pipe-step" style="background:rgba(88,166,255,0.06)">
+      <div class="pipe-num" style="color:#58a6ff">2</div>
+      <div class="pipe-label" style="color:#58a6ff">Historial BD</div>
+      <div class="pipe-sub">5 consultas SQL<br/>&rarr; contexto hist&oacute;rico</div>
+    </div>
+    <div class="pipe-step" style="background:rgba(188,140,255,0.06)">
+      <div class="pipe-num" style="color:#bc8cff">3</div>
+      <div class="pipe-label" style="color:#bc8cff">IA Planifica</div>
+      <div class="pipe-sub">Qwen2.5 decide<br/>qu&eacute; hacer con c/host</div>
+    </div>
+    <div class="pipe-step" style="background:rgba(227,179,65,0.06)">
+      <div class="pipe-num" style="color:#e3b341">4</div>
+      <div class="pipe-label" style="color:#e3b341">Find CVEs</div>
+      <div class="pipe-sub">nmap -sV vuln<br/>+ inyecci&oacute;n historial</div>
+    </div>
+    <div class="pipe-step" style="background:rgba(248,81,73,0.06)">
+      <div class="pipe-num" style="color:#f85149">5</div>
+      <div class="pipe-label" style="color:#f85149">Explotar</div>
+      <div class="pipe-sub">IA ordena CVEs<br/>Metasploit ataca</div>
+    </div>
+  </div>
+  <div class="swimlane-wrap">
+    <div class="swimlane" style="background:rgba(0,255,195,0.02);min-height:62px;">
+      <div class="swimlane-label" style="background:rgba(0,255,195,0.1);color:#00ffc3;font-size:8px;">FRONTEND</div>
+      <div class="swimlane-body">
+        <div class="event" style="border-color:#00ffc3;color:#00ffc3;background:rgba(0,255,195,0.1);width:40px;height:40px;">&#9658; GO</div>
+        <div class="conn-h" style="width:14px;"></div>
+        <div class="proc" style="border-color:#00ffc3;color:#00ffc3;background:rgba(0,255,195,0.07);font-size:11px;">POST /scan-network</div>
+        <div class="conn-h" style="width:10px;"></div>
+        <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.07);font-size:11px;">GET /ai-context</div>
+        <div class="conn-h" style="width:10px;"></div>
+        <div class="proc" style="border-color:#bc8cff;color:#bc8cff;background:rgba(188,140,255,0.07);font-size:11px;">POST /ai-plan</div>
+        <div class="conn-h" style="width:10px;"></div>
+        <div class="decision" style="background:rgba(227,179,65,0.15);color:#e3b341;width:95px;height:62px;">&iquest;combo ganador<br/>en BD?</div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(249,168,212,0.02);min-height:56px;">
+      <div class="swimlane-label" style="background:rgba(249,168,212,0.1);color:#f9a8d4;font-size:8px;">FAST PATH</div>
+      <div class="swimlane-body">
+        <span class="bold text-pink text-xs">S&Iacute; &darr;</span>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#f9a8d4;color:#f9a8d4;background:rgba(249,168,212,0.07);font-size:11px;">POST /run-exploit<br/><span style="font-size:9.5px;font-weight:400;color:#8b949e">m&oacute;dulo+payload EXACTO de BD</span></div>
+        <div class="conn-h" style="width:10px;"></div>
+        <div class="decision" style="background:rgba(57,211,83,0.12);color:#3fb950;width:82px;height:56px;">&iquest;sesi&oacute;n<br/>abierta?</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;margin-left:.5rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span class="text-xs bold" style="color:#3fb950">S&Iacute; &rarr;</span>
+            <div class="event" style="border-color:#3fb950;background:rgba(57,211,83,0.12);color:#3fb950;width:40px;height:40px;">&#10003; PWN</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span class="text-xs bold" style="color:#f85149">NO &rarr;</span>
+            <span class="text-xs text-muted">flujo normal &darr;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(88,166,255,0.02);min-height:58px;">
+      <div class="swimlane-label" style="background:rgba(88,166,255,0.1);color:#58a6ff;font-size:8px;">FLUJO<br/>NORMAL</div>
+      <div class="swimlane-body">
+        <span class="bold text-blue text-xs">NO &darr;</span>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.07);font-size:11px;">POST /find-vulns<br/><span style="font-size:9.5px;font-weight:400;color:#8b949e">nmap -sV + vuln</span></div>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.07);font-size:11px;">+ inyectar CVEs<br/><span style="font-size:9.5px;font-weight:400;color:#8b949e">historial IA</span></div>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#bc8cff;color:#bc8cff;background:rgba(188,140,255,0.07);font-size:11px;">POST /ai-analyze<br/><span style="font-size:9.5px;font-weight:400;color:#8b949e">IA ordena CVEs</span></div>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#f85149;color:#f85149;background:rgba(248,81,73,0.07);font-size:11px;">POST /exploit<br/><span style="font-size:9.5px;font-weight:400;color:#8b949e">Metasploit</span></div>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="decision" style="background:rgba(57,211,83,0.12);color:#3fb950;width:82px;height:58px;">&iquest;sesi&oacute;n<br/>abierta?</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;margin-left:.5rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span class="text-xs bold" style="color:#3fb950">S&Iacute; &rarr;</span>
+            <div class="event" style="border-color:#3fb950;background:rgba(57,211,83,0.12);color:#3fb950;width:40px;height:40px;">&#10003; PWN</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span class="text-xs bold" style="color:#f85149">NO &rarr;</span>
+            <span class="text-xs text-muted">siguiente host</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(248,81,73,0.02);min-height:46px;">
+      <div class="swimlane-label" style="background:rgba(248,81,73,0.1);color:#f85149;font-size:8px;">SKIP IA</div>
+      <div class="swimlane-body">
+        <span class="text-xs bold" style="color:#f85149">accion=skip &rarr;</span>
+        <div class="conn-h" style="width:8px;"></div>
+        <div class="proc" style="border-color:#f85149;color:#f85149;background:rgba(248,81,73,0.07);font-size:11px;">&#10007; Ignorar host</div>
+        <span class="text-xs text-muted" style="margin-left:.5rem">Sin vector prometedor seg&uacute;n historial</span>
+      </div>
+    </div>
+    <div class="swimlane" style="background:rgba(57,211,83,0.02);min-height:46px;">
+      <div class="swimlane-label" style="background:rgba(57,211,83,0.1);color:#3fb950;font-size:8px;">RESUMEN</div>
+      <div class="swimlane-body">
+        <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.07);font-size:11px;">Hosts descubiertos / analizados / comprometidos</div>
+        <div class="conn-h" style="width:10px;"></div>
+        <div class="event" style="border-color:#3fb950;background:rgba(57,211,83,0.12);color:#3fb950;width:40px;height:40px;">&#9632; END</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAG C: FASES 1 y 2 -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(0,255,195,0.15);color:#00ffc3">1-2</div>
+    <div><h2 style="color:#00ffc3">Fase 1 &mdash; Descubrimiento &nbsp;+&nbsp; Fase 2 &mdash; Historial BD</h2>
+    <div class="subtitle">Recopilar toda la informaci&oacute;n antes de llamar a la IA</div></div>
+  </div>
+  <div class="card mb-2">
+    <div class="card-title" style="color:#00ffc3">Fase 1 &mdash; POST /scan-network</div>
+    <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+      <div class="event" style="border-color:#00ffc3;background:rgba(0,255,195,0.1);color:#00ffc3;width:44px;height:44px;">&#9658;</div>
+      <div class="conn-h" style="width:14px;"></div>
+      <div class="proc" style="border-color:#00ffc3;color:#00ffc3;background:rgba(0,255,195,0.07);">Usuario: red objetivo<br/><span style="font-size:10px;color:#8b949e">ej: 10.0.0.0/24</span></div>
+      <div class="conn-h" style="width:12px;"></div>
+      <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.07);">Frontend<br/>POST /scan-network</div>
+      <div class="conn-h" style="width:12px;"></div>
+      <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.07);">core/network_scan<br/><span class="mono" style="font-size:10px;">nmap -sn</span></div>
+      <div class="conn-h" style="width:12px;"></div>
+      <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.07);">Lista de hosts<br/><span style="font-size:10px;color:#8b949e">[{ip, ports}, ...]</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:#58a6ff">Fase 2 &mdash; GET /ai-context &rarr; 5 consultas SQL a MySQL</div>
+    <div style="display:flex;align-items:flex-start;gap:1rem;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.4rem;">
+        <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.07);font-size:11px;min-width:130px;">GET /ai-context</div>
+        <div style="width:2px;height:20px;background:#30363d;"></div>
+        <span class="text-xs text-muted">5 queries SQL</span>
+        <div style="width:2px;height:20px;background:#30363d;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;flex:1;align-self:center;">
+        <div style="padding:.6rem .9rem;border:1.5px solid rgba(57,211,83,0.5);border-radius:8px;background:rgba(57,211,83,0.06);">
+          <div style="font-size:11px;font-weight:700;color:#3fb950;margin-bottom:.3rem;">&#128994; compromised</div>
+          <div class="text-xs text-muted">IPs comprometidas + CVE usado + fecha del &eacute;xito</div>
+        </div>
+        <div style="padding:.6rem .9rem;border:1.5px solid rgba(88,166,255,0.5);border-radius:8px;background:rgba(88,166,255,0.06);">
+          <div style="font-size:11px;font-weight:700;color:#58a6ff;margin-bottom:.3rem;">&#128309; workingCves</div>
+          <div class="text-xs text-muted">CVEs que han abierto sesi&oacute;n real en esta red</div>
+        </div>
+        <div style="padding:.6rem .9rem;border:1.5px solid rgba(227,179,65,0.5);border-radius:8px;background:rgba(227,179,65,0.06);">
+          <div style="font-size:11px;font-weight:700;color:#e3b341;margin-bottom:.3rem;">&#128993; successPatterns</div>
+          <div class="text-xs text-muted">Tasa de &eacute;xito por puerto (ej: 445 &rarr; 8/10)</div>
+        </div>
+        <div style="padding:.6rem .9rem;border:1.5px solid rgba(248,81,73,0.5);border-radius:8px;background:rgba(248,81,73,0.06);">
+          <div style="font-size:11px;font-weight:700;color:#f85149;margin-bottom:.3rem;">&#128308; onlyFailed</div>
+          <div class="text-xs text-muted">IPs donde todos los intentos han fallado</div>
+        </div>
+        <div style="padding:.6rem .9rem;border:1.5px solid rgba(249,168,212,0.6);border-radius:8px;background:rgba(249,168,212,0.06);grid-column:span 2;">
+          <div style="font-size:11px;font-weight:700;color:#f9a8d4;margin-bottom:.3rem;">&#11088; winningCombinations &mdash; clave para el Fast Path</div>
+          <div class="text-xs text-muted">Combos EXACTOS m&oacute;dulo+payload que abrieron sesi&oacute;n &rarr; usados directamente sin volver a preguntar a la IA</div>
+        </div>
+      </div>
+    </div>
+    <div class="callout mt-2" style="border-color:#58a6ff;background:rgba(88,166,255,0.06)">
+      <div class="callout-title text-blue">&iquest;Por qu&eacute; es clave esta fase?</div>
+      Este contexto es lo que hace &quot;inteligente&quot; a la IA. Sin &eacute;l, el modelo solo ve los hosts actuales.
+      Con &eacute;l, puede razonar: <em>&quot;esta IP fue comprometida la semana pasada con EternalBlue &mdash; ve directo al exploit&quot;</em>.
+    </div>
+  </div>
+</div>
+
+<!-- PAG D: FASE 3 IA PLANIFICA -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(188,140,255,0.15);color:#bc8cff">3</div>
+    <div><h2 style="color:#bc8cff">Fase 3 &mdash; La IA Planifica el Ataque</h2>
+    <div class="subtitle">POST /ai-plan &rarr; Qwen2.5-CyberSecurity decide qu&eacute; hacer con cada host</div></div>
+  </div>
+  <div class="card mb-2">
+    <div class="card-title" style="color:#bc8cff">Pipeline &mdash; POST /ai-plan</div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+      <div class="proc" style="border-color:#00ffc3;color:#00ffc3;background:rgba(0,255,195,0.07);font-size:11px;">Frontend<br/>{hosts + contexto}</div>
+      <div class="conn-h" style="width:10px;"></div>
+      <div class="proc" style="border-color:#58a6ff;color:#58a6ff;background:rgba(88,166,255,0.07);font-size:11px;">ia_funciones_especificas.js<br/><span style="font-size:9.5px;color:#8b949e">construye prompt ~2000 tokens</span></div>
+      <div class="conn-h" style="width:10px;"></div>
+      <div class="proc" style="border-color:#e3b341;color:#e3b341;background:rgba(227,179,65,0.07);font-size:11px;">HTTP POST &rarr; Ollama<br/><span style="font-size:9.5px;color:#8b949e">10.0.1.4:11434 &middot; timeout 120s</span></div>
+      <div class="conn-h" style="width:10px;"></div>
+      <div class="proc" style="border-color:#bc8cff;color:#bc8cff;background:rgba(188,140,255,0.07);font-size:11px;">Qwen2.5 razona<br/><span style="font-size:9.5px;color:#8b949e">temperature=0.2, ctx=8192</span></div>
+      <div class="conn-h" style="width:10px;"></div>
+      <div class="proc" style="border-color:#3fb950;color:#3fb950;background:rgba(57,211,83,0.07);font-size:11px;">JSON limpio<br/><span style="font-size:9.5px;color:#8b949e">{resumen, plan:[...]}</span></div>
+    </div>
+  </div>
+  <div class="card mb-2">
+    <div class="card-title" style="color:#bc8cff">Las 4 acciones que la IA puede asignar a cada host</div>
+    <div class="grid-2">
+      <div style="border:1.5px solid rgba(0,255,195,0.4);border-radius:10px;padding:.9rem;background:rgba(0,255,195,0.04)">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <div style="width:11px;height:11px;border-radius:2px;background:#00ffc3;"></div>
+          <span class="mono bold text-accent" style="font-size:11px;">scan_and_exploit</span>
+        </div>
+        <div class="text-xs mb-1">Flujo completo: escanear &rarr; CVEs &rarr; explotar.</div>
+        <div class="text-xs text-muted">Para hosts nuevos sin historial previo.</div>
+      </div>
+      <div style="border:1.5px solid rgba(88,166,255,0.4);border-radius:10px;padding:.9rem;background:rgba(88,166,255,0.04)">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <div style="width:11px;height:11px;border-radius:2px;background:#58a6ff;"></div>
+          <span class="mono bold text-blue" style="font-size:11px;">exploit_direct</span>
+        </div>
+        <div class="text-xs mb-1">Saltar el escaneo, ir directo al exploit.</div>
+        <div class="text-xs text-muted">Host ya caracterizado en sesiones anteriores.</div>
+      </div>
+      <div style="border:1.5px solid rgba(227,179,65,0.4);border-radius:10px;padding:.9rem;background:rgba(227,179,65,0.04)">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <div style="width:11px;height:11px;border-radius:2px;background:#e3b341;"></div>
+          <span class="mono bold text-yellow" style="font-size:11px;">ssh_brute</span>
+        </div>
+        <div class="text-xs mb-1">Fuerza bruta SSH.</div>
+        <div class="text-xs text-muted">Solo puerto 22, sin CVEs fuertes.</div>
+      </div>
+      <div style="border:1.5px solid rgba(248,81,73,0.4);border-radius:10px;padding:.9rem;background:rgba(248,81,73,0.04)">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <div style="width:11px;height:11px;border-radius:2px;background:#f85149;"></div>
+          <span class="mono bold text-red" style="font-size:11px;">skip</span>
+        </div>
+        <div class="text-xs mb-1">Ignorar este host.</div>
+        <div class="text-xs text-muted">Sin puertos prometedores ni historial.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Ejemplo de respuesta JSON del modelo</div>
+    <div class="code-block">
+{ <span class="c-blue">"resumen"</span>: <span class="c-yellow">"Red Windows &mdash; EternalBlue dominante, priorizar puerto 445"</span>,
+  <span class="c-blue">"plan"</span>: [
+    { <span class="c-blue">"ip"</span>:<span class="c-yellow">"10.0.0.48"</span>, <span class="c-blue">"accion"</span>:<span class="c-blue">"exploit_direct"</span>,    <span class="c-blue">"prioridad"</span>:<span class="c-purple">1</span>,
+      <span class="c-blue">"razon"</span>:<span class="c-yellow">"Comprometida el 2026-04-07 con CVE-2017-0144"</span> },
+    { <span class="c-blue">"ip"</span>:<span class="c-yellow">"10.0.0.51"</span>, <span class="c-blue">"accion"</span>:<span class="c-accent">"scan_and_exploit"</span>, <span class="c-blue">"prioridad"</span>:<span class="c-purple">2</span>,
+      <span class="c-blue">"razon"</span>:<span class="c-yellow">"Puerto 445 &mdash; mismo perfil que hosts comprometidos"</span> },
+    { <span class="c-blue">"ip"</span>:<span class="c-yellow">"10.0.0.99"</span>, <span class="c-blue">"accion"</span>:<span class="c-red">"skip"</span>,             <span class="c-blue">"prioridad"</span>:<span class="c-purple">99</span>,
+      <span class="c-blue">"razon"</span>:<span class="c-yellow">"Solo puerto 80 &mdash; sin CVEs conocidos para HTTP en esta red"</span> }
+  ] }
+    </div>
+  </div>
+</div>
+
+<!-- PAG E: FAST PATH -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(249,168,212,0.15);color:#f9a8d4">F</div>
+    <div><h2 style="color:#f9a8d4">Fast Path &mdash; Reexplotaci&oacute;n Directa</h2>
+    <div class="subtitle">La optimizaci&oacute;n m&aacute;s importante: usar exactamente lo que ya funcion&oacute;</div></div>
+  </div>
+  <div class="callout" style="border-color:#f9a8d4;background:rgba(249,168,212,0.07)">
+    <div class="callout-title text-pink">&iquest;Qu&eacute; es el Fast Path?</div>
+    Si la BD tiene registrado que en una IP concreta ya se abri&oacute; sesi&oacute;n con un m&oacute;dulo y payload espec&iacute;ficos &rarr;
+    <span class="bold">no se escanea, no se llama a la IA de nuevo, no se iteran payloads alternativos</span>.
+    Se va directo al combo que funcion&oacute;. Es la decisi&oacute;n m&aacute;s eficiente posible.
+  </div>
+  <div class="card mt-2">
+    <div class="card-title" style="color:#f9a8d4">&Aacute;rbol de decisi&oacute;n &mdash; Fast Path vs Flujo Normal</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0;padding:.5rem 0;">
+      <div class="decision" style="background:rgba(249,168,212,0.15);color:#f9a8d4;width:160px;height:85px;font-size:10px;">
+        &iquest;winningCombination<br/>en BD para esta IP?
+      </div>
+      <div style="display:flex;width:88%;justify-content:space-between;align-items:flex-start;margin-top:.6rem;gap:1rem;">
+        <!-- FAST PATH -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:2px;height:18px;background:#3fb950;"></div>
+          <span class="bold" style="font-size:11px;color:#3fb950">S&Iacute; &mdash; FAST PATH</span>
+          <div style="width:2px;height:12px;background:#3fb950;"></div>
+          <div style="border:1.5px solid #f9a8d4;border-radius:8px;padding:.7rem 1rem;background:rgba(249,168,212,0.06);width:100%;text-align:center;">
+            <div style="font-size:11.5px;font-weight:700;color:#f9a8d4;margin-bottom:.3rem;">POST /run-exploit</div>
+            <div class="mono text-xs text-muted">m&oacute;dulo + payload EXACTO de BD<br/>sin iteraci&oacute;n &middot; sin scan &middot; sin /ai-analyze</div>
+          </div>
+          <div style="width:2px;height:12px;background:#30363d;"></div>
+          <div class="decision" style="background:rgba(57,211,83,0.12);color:#3fb950;width:110px;height:68px;font-size:10px;">&iquest;sesi&oacute;n<br/>abierta?</div>
+          <div style="display:flex;width:100%;justify-content:space-around;margin-top:.5rem;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+              <span class="text-xs bold" style="color:#3fb950">S&Iacute;</span>
+              <div style="width:2px;height:12px;background:#3fb950;"></div>
+              <div class="event" style="border-color:#3fb950;background:rgba(57,211,83,0.12);color:#3fb950;width:44px;height:44px;">&#10003; PWN</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+              <span class="text-xs bold" style="color:#f85149">NO</span>
+              <div style="width:2px;height:12px;background:#f85149;"></div>
+              <div style="border:1px solid #f85149;border-radius:6px;padding:.4rem .6rem;background:rgba(248,81,73,0.07);text-align:center;">
+                <div style="font-size:10px;font-weight:700;color:#f85149;">fastPathFailed</div>
+                <div class="text-xs text-muted">&rarr; flujo normal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width:1px;background:#30363d;min-height:220px;align-self:stretch;margin-top:30px;"></div>
+        <!-- FLUJO NORMAL -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:2px;height:18px;background:#58a6ff;"></div>
+          <span class="bold" style="font-size:11px;color:#58a6ff">NO &mdash; FLUJO NORMAL</span>
+          <div style="width:2px;height:12px;background:#58a6ff;"></div>
+          <div style="width:100%;display:flex;flex-direction:column;gap:.4rem;">
+            <div style="border:1.5px solid #e3b341;border-radius:8px;padding:.6rem 1rem;background:rgba(227,179,65,0.06);text-align:center;">
+              <div style="font-size:11px;font-weight:700;color:#e3b341;">POST /find-vulns</div>
+              <div class="text-xs text-muted">nmap -sV + scripts vuln</div>
+            </div>
+            <div style="display:flex;justify-content:center;"><div style="width:2px;height:10px;background:#30363d;"></div></div>
+            <div style="border:1.5px solid #bc8cff;border-radius:8px;padding:.6rem 1rem;background:rgba(188,140,255,0.06);text-align:center;">
+              <div style="font-size:11px;font-weight:700;color:#bc8cff;">POST /ai-analyze</div>
+              <div class="text-xs text-muted">IA prioriza CVEs para este host</div>
+            </div>
+            <div style="display:flex;justify-content:center;"><div style="width:2px;height:10px;background:#30363d;"></div></div>
+            <div style="border:1.5px solid #f85149;border-radius:8px;padding:.6rem 1rem;background:rgba(248,81,73,0.06);text-align:center;">
+              <div style="font-size:11px;font-weight:700;color:#f85149;">POST /exploit</div>
+              <div class="text-xs text-muted">Metasploit itera CVEs en orden IA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="callout mt-2" style="border-color:#e3b341;background:rgba(227,179,65,0.07)">
+    <div class="callout-title text-yellow">&iquest;Qui&eacute;n decide el fast path?</div>
+    La IA asigna <span class="mono">exploit_direct</span> como se&ntilde;al, pero <span class="bold">la l&oacute;gica del fast path la ejecuta el c&oacute;digo JavaScript</span> (AIAutoPwn.jsx) leyendo la BD directamente. La IA razona &rarr; el c&oacute;digo act&uacute;a.
+  </div>
+</div>
+
+<!-- PAG F: ia.js -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(0,255,195,0.15);color:#00ffc3">C</div>
+    <div><h2 style="color:#00ffc3">C&oacute;mo se habla con el modelo &mdash; ia.js</h2>
+    <div class="subtitle">Pipeline desde el prompt hasta el JSON limpio devuelto al frontend</div></div>
+  </div>
+  <div style="display:flex;gap:.6rem;align-items:stretch;flex-wrap:wrap;margin-bottom:1rem;">
+    <div style="flex:1;min-width:120px;border:1.5px solid rgba(0,255,195,0.4);border-radius:10px;padding:.9rem;background:rgba(0,255,195,0.04);">
+      <div style="font-size:22px;margin-bottom:.4rem;">&#128221;</div>
+      <div class="bold text-accent" style="font-size:12px;margin-bottom:.3rem;">&#9312; Entrada</div>
+      <div class="mono text-xs text-muted">ia_realizar_consulta(<br/>prompt, accion)</div>
+    </div>
+    <div style="align-self:center;font-size:18px;color:#8b949e;">&rarr;</div>
+    <div style="flex:1;min-width:120px;border:1.5px solid rgba(227,179,65,0.4);border-radius:10px;padding:.9rem;background:rgba(227,179,65,0.04);">
+      <div style="font-size:22px;margin-bottom:.4rem;">&#128225;</div>
+      <div class="bold text-yellow" style="font-size:12px;margin-bottom:.3rem;">&#9313; HTTP POST</div>
+      <div class="mono text-xs text-muted">Ollama 10.0.1.4:11434<br/>format:"json"<br/>temp:0.2 &middot; timeout:120s</div>
+    </div>
+    <div style="align-self:center;font-size:18px;color:#8b949e;">&rarr;</div>
+    <div style="flex:1;min-width:120px;border:1.5px solid rgba(88,166,255,0.4);border-radius:10px;padding:.9rem;background:rgba(88,166,255,0.04);">
+      <div style="font-size:22px;margin-bottom:.4rem;">&#129504;</div>
+      <div class="bold text-blue" style="font-size:12px;margin-bottom:.3rem;">&#9314; Respuesta cruda</div>
+      <div class="text-xs text-muted">El modelo puede envolver el JSON en markdown, a&ntilde;adir BOM, trailing commas&hellip;</div>
+    </div>
+    <div style="align-self:center;font-size:18px;color:#8b949e;">&rarr;</div>
+    <div style="flex:1;min-width:120px;border:1.5px solid rgba(188,140,255,0.4);border-radius:10px;padding:.9rem;background:rgba(188,140,255,0.04);">
+      <div style="font-size:22px;margin-bottom:.4rem;">&#129529;</div>
+      <div class="bold text-purple" style="font-size:12px;margin-bottom:.3rem;">&#9315; Limpiar JSON</div>
+      <div class="text-xs text-muted">ia_limpiar_json() sanea en 5 pasos</div>
+    </div>
+    <div style="align-self:center;font-size:18px;color:#8b949e;">&rarr;</div>
+    <div style="flex:1;min-width:120px;border:1.5px solid rgba(57,211,83,0.4);border-radius:10px;padding:.9rem;background:rgba(57,211,83,0.04);">
+      <div style="font-size:22px;margin-bottom:.4rem;">&#9989;</div>
+      <div class="bold text-green" style="font-size:12px;margin-bottom:.3rem;">&#9316; JSON listo</div>
+      <div class="text-xs text-muted">Objeto JS para usar. Log guardado en ia_logs/</div>
+    </div>
+  </div>
+  <div class="card mb-2">
+    <div class="card-title" style="color:#bc8cff">ia_limpiar_json() &mdash; 5 pasos de saneamiento</div>
+    <div style="display:flex;gap:.4rem;align-items:stretch;flex-wrap:wrap;">
+      <div style="flex:1;padding:.7rem;border:1px solid #30363d;border-radius:8px;text-align:center;min-width:75px;">
+        <div class="bold text-purple" style="font-size:17px;margin-bottom:.3rem;">&#9312;</div>
+        <div style="font-size:10px;font-weight:700;margin-bottom:.2rem;">Strip Markdown</div>
+        <div class="text-xs text-muted">Extrae de <span class="mono">```json&hellip;```</span></div>
+      </div>
+      <div style="align-self:center;color:#8b949e;">&rarr;</div>
+      <div style="flex:1;padding:.7rem;border:1px solid #30363d;border-radius:8px;text-align:center;min-width:75px;">
+        <div class="bold text-purple" style="font-size:17px;margin-bottom:.3rem;">&#9313;</div>
+        <div style="font-size:10px;font-weight:700;margin-bottom:.2rem;">Eliminar BOM</div>
+        <div class="text-xs text-muted">Quita <span class="mono">﻿</span> y chars ocultos</div>
+      </div>
+      <div style="align-self:center;color:#8b949e;">&rarr;</div>
+      <div style="flex:1;padding:.7rem;border:1px solid #30363d;border-radius:8px;text-align:center;min-width:75px;">
+        <div class="bold text-purple" style="font-size:17px;margin-bottom:.3rem;">&#9314;</div>
+        <div style="font-size:10px;font-weight:700;margin-bottom:.2rem;">Recortar</div>
+        <div class="text-xs text-muted">Primer <span class="mono">{</span> &rarr; &uacute;ltimo <span class="mono">}</span></div>
+      </div>
+      <div style="align-self:center;color:#8b949e;">&rarr;</div>
+      <div style="flex:1;padding:.7rem;border:1px solid #30363d;border-radius:8px;text-align:center;min-width:75px;">
+        <div class="bold text-purple" style="font-size:17px;margin-bottom:.3rem;">&#9315;</div>
+        <div style="font-size:10px;font-weight:700;margin-bottom:.2rem;">Trailing commas</div>
+        <div class="text-xs text-muted"><span class="mono">,}</span>&rarr;<span class="mono">}</span> &nbsp; <span class="mono">,]</span>&rarr;<span class="mono">]</span></div>
+      </div>
+      <div style="align-self:center;color:#8b949e;">&rarr;</div>
+      <div style="flex:1;padding:.7rem;border:1px solid #30363d;border-radius:8px;text-align:center;min-width:75px;">
+        <div class="bold text-purple" style="font-size:17px;margin-bottom:.3rem;">&#9316;</div>
+        <div style="font-size:10px;font-weight:700;margin-bottom:.2rem;">Escapes</div>
+        <div class="text-xs text-muted">Sanea <span class="mono">"</span> mal formados</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Logs autom&aacute;ticos &mdash; ia_logs/</div>
+    <div class="grid-2">
+      <div class="text-sm">Cada consulta genera o a&ntilde;ade a un fichero de log:<br/>
+        <span class="mono text-yellow" style="font-size:10px;">2026-04-10_08_23_Qwen2_5-CyberSecurity_IA.log</span>
+        <div class="text-xs text-muted mt-1">Permite auditar todas las decisiones de la IA.</div>
+      </div>
+      <div style="border:1px solid #30363d;border-radius:8px;padding:.8rem;background:#21262d;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;line-height:1.7;">
+        <span style="color:#00ffc3">[ACCIÓN]:</span> planificar_ataque<br/>
+        <span style="color:#58a6ff">[MODELO]:</span> Qwen2.5-7B-CyberSecurity<br/>
+        <span style="color:#e3b341">[TIEMPO]:</span> 34.217 segundos<br/>
+        <span style="color:#3fb950">[TOKENS TOTAL]:</span> 1159<br/>
+        <span style="color:#3fb950">[ESTADO]:</span> &Eacute;xito
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAG G: 6 FUNCIONES -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(88,166,255,0.15);color:#58a6ff">D</div>
+    <div><h2 style="color:#58a6ff">Las 6 Funciones IA Especializadas</h2>
+    <div class="subtitle">ia_funciones_especificas.js &mdash; Un prompt distinto para cada tarea de pentesting</div></div>
+  </div>
+  <div class="callout" style="border-color:#58a6ff;background:rgba(88,166,255,0.07)">
+    <div class="callout-title text-blue">Principio de dise&ntilde;o</div>
+    La IA siempre responde con un <span class="bold">JSON de estructura fija y conocida</span>, lo que permite al c&oacute;digo procesar la respuesta de forma fiable sin interpretar texto libre.
+  </div>
+  <div class="grid-2 mt-2">
+    <div style="border:1.5px solid rgba(188,140,255,0.5);border-radius:10px;padding:.9rem;background:rgba(188,140,255,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(188,140,255,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#128506;</div>
+        <div><div class="bold text-purple" style="font-size:11px;">ia_planificar_ataque()</div><div class="mono text-xs" style="color:rgba(188,140,255,0.6)">POST /ai-plan</div></div>
+      </div>
+      <div class="text-xs mb-1">N hosts + historial BD &rarr; decide acci&oacute;n y orden de ataque.</div>
+      <div class="mono text-xs text-muted">{resumen, plan:[{ip, accion, prioridad, razon}]}</div>
+    </div>
+    <div style="border:1.5px solid rgba(0,255,195,0.5);border-radius:10px;padding:.9rem;background:rgba(0,255,195,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(0,255,195,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#128300;</div>
+        <div><div class="bold text-accent" style="font-size:11px;">ia_analizar_vulnerabilidades()</div><div class="mono text-xs" style="color:rgba(0,255,195,0.6)">POST /ai-analyze</div></div>
+      </div>
+      <div class="text-xs mb-1">Host con CVEs detectados &rarr; prioriza cu&aacute;l explotar primero.</div>
+      <div class="mono text-xs text-muted">{resumen, prioridad:[{cve, razon}], advertencias}</div>
+    </div>
+    <div style="border:1.5px solid rgba(227,179,65,0.5);border-radius:10px;padding:.9rem;background:rgba(227,179,65,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(227,179,65,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#9193;</div>
+        <div><div class="bold text-yellow" style="font-size:11px;">ia_sugerir_siguiente_paso()</div><div class="mono text-xs" style="color:rgba(227,179,65,0.6)">POST /ai-next</div></div>
+      </div>
+      <div class="text-xs mb-1">Modo guiado: estado actual &rarr; sugiere exploit/scan/brute/skip.</div>
+      <div class="mono text-xs text-muted">{accion, razon, detalle}</div>
+    </div>
+    <div style="border:1.5px solid rgba(88,166,255,0.5);border-radius:10px;padding:.9rem;background:rgba(88,166,255,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(88,166,255,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#128138;</div>
+        <div><div class="bold text-blue" style="font-size:11px;">ia_recomendar_payload()</div><div class="mono text-xs" style="color:rgba(88,166,255,0.6)">uso interno</div></div>
+      </div>
+      <div class="text-xs mb-1">M&oacute;dulo MSF + SO/arch &rarr; recomienda el mejor payload.</div>
+      <div class="mono text-xs text-muted">{payload, razon, alternativas}</div>
+    </div>
+    <div style="border:1.5px solid rgba(248,81,73,0.5);border-radius:10px;padding:.9rem;background:rgba(248,81,73,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(248,81,73,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#128269;</div>
+        <div><div class="bold text-red" style="font-size:11px;">ia_analizar_fallo_exploit()</div><div class="mono text-xs" style="color:rgba(248,81,73,0.6)">uso interno</div></div>
+      </div>
+      <div class="text-xs mb-1">Exploit fallido + log &rarr; diagnostica qu&eacute; sali&oacute; mal.</div>
+      <div class="mono text-xs text-muted">{diagnostico, causa_probable, sugerencias}</div>
+    </div>
+    <div style="border:1.5px solid rgba(57,211,83,0.5);border-radius:10px;padding:.9rem;background:rgba(57,211,83,0.04);">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(57,211,83,0.2);display:flex;align-items:center;justify-content:center;font-size:15px;">&#128196;</div>
+        <div><div class="bold text-green" style="font-size:11px;">ia_generar_informe_host()</div><div class="mono text-xs" style="color:rgba(57,211,83,0.6)">POST /ai-report</div></div>
+      </div>
+      <div class="text-xs mb-1">Resultados del ataque &rarr; informe ejecutivo de pentesting.</div>
+      <div class="mono text-xs text-muted">{titulo, resumen_ejecutivo, hallazgos, recomendaciones}</div>
+    </div>
+  </div>
+  <div class="card mt-2">
+    <div class="card-title">+ Chat libre &mdash; POST /ai-chat (Aracni)</div>
+    <div class="grid-2">
+      <div class="text-sm">El asistente <span class="bold text-purple">&quot;Aracni&quot;</span> permite chat libre sobre pentesting. Responde en el mismo idioma que el usuario. Mantiene historial de los &uacute;ltimos 6 mensajes.</div>
+      <div style="border:1px solid #30363d;border-radius:8px;padding:.7rem;background:#21262d;font-size:10px;font-family:'JetBrains Mono',monospace;color:#8b949e;">
+        <span style="color:#bc8cff">System:</span> &quot;You are Aracni, an expert<br/>
+        cybersecurity assistant embedded<br/>
+        in ARES... Respond in the same<br/>
+        language the user writes in.&quot;
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAG H: RESUMEN -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(57,211,83,0.15);color:#3fb950">E</div>
+    <div><h2 style="color:#3fb950">Resumen &mdash; IA vs C&oacute;digo vs Base de Datos</h2>
+    <div class="subtitle">Qu&eacute; decide y qu&eacute; ejecuta cada parte del sistema</div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;">
+    <div style="background:rgba(188,140,255,0.06);border:1px solid rgba(188,140,255,0.3);border-radius:10px;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+        <span style="font-size:20px;">&#129504;</span>
+        <span class="bold text-purple">IA &mdash; Qwen2.5-7B-CyberSecurity</span>
+        <span class="text-muted text-xs">(razona, no ejecuta)</span>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">Qu&eacute; hosts atacar y en qu&eacute; orden</span>
+        <span class="badge" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">Qu&eacute; CVEs priorizar</span>
+        <span class="badge" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">ssh_brute o MSF</span>
+        <span class="badge" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">Por qu&eacute; fall&oacute; un exploit</span>
+        <span class="badge" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.3)">Informes ejecutivos</span>
+      </div>
+    </div>
+    <div style="background:rgba(0,255,195,0.04);border:1px solid rgba(0,255,195,0.25);border-radius:10px;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+        <span style="font-size:20px;">&#9883;</span>
+        <span class="bold text-accent">Frontend JS &mdash; AIAutoPwn.jsx</span>
+        <span class="text-muted text-xs">(orquesta, no razona)</span>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(0,255,195,0.08);color:#00ffc3;border:1px solid rgba(0,255,195,0.25)">Fast path (mira BD directamente)</span>
+        <span class="badge" style="background:rgba(0,255,195,0.08);color:#00ffc3;border:1px solid rgba(0,255,195,0.25)">Inyectar CVEs hist&oacute;ricos</span>
+        <span class="badge" style="background:rgba(0,255,195,0.08);color:#00ffc3;border:1px solid rgba(0,255,195,0.25)">Orquestar las 5 fases</span>
+        <span class="badge" style="background:rgba(0,255,195,0.08);color:#00ffc3;border:1px solid rgba(0,255,195,0.25)">Reordenar CVEs seg&uacute;n IA</span>
+      </div>
+    </div>
+    <div style="background:rgba(88,166,255,0.04);border:1px solid rgba(88,166,255,0.25);border-radius:10px;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+        <span style="font-size:20px;">&#9881;</span>
+        <span class="bold text-blue">Backend Node.js</span>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(88,166,255,0.08);color:#58a6ff;border:1px solid rgba(88,166,255,0.25)">Construir prompts</span>
+        <span class="badge" style="background:rgba(88,166,255,0.08);color:#58a6ff;border:1px solid rgba(88,166,255,0.25)">Limpiar JSON de la IA</span>
+        <span class="badge" style="background:rgba(88,166,255,0.08);color:#58a6ff;border:1px solid rgba(88,166,255,0.25)">Endpoints REST /ai-*</span>
+        <span class="badge" style="background:rgba(88,166,255,0.08);color:#58a6ff;border:1px solid rgba(88,166,255,0.25)">Logs de auditor&iacute;a</span>
+      </div>
+    </div>
+    <div style="background:rgba(248,81,73,0.04);border:1px solid rgba(248,81,73,0.25);border-radius:10px;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+        <span style="font-size:20px;">&#9889;</span>
+        <span class="bold text-red">Binarios C + Metasploit</span>
+        <span class="text-muted text-xs">(ejecutan el trabajo real)</span>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(248,81,73,0.08);color:#f85149;border:1px solid rgba(248,81,73,0.25)">Escaneos nmap</span>
+        <span class="badge" style="background:rgba(248,81,73,0.08);color:#f85149;border:1px solid rgba(248,81,73,0.25)">Explotaci&oacute;n real con MSF</span>
+        <span class="badge" style="background:rgba(248,81,73,0.08);color:#f85149;border:1px solid rgba(248,81,73,0.25)">SSH brute force</span>
+      </div>
+    </div>
+    <div style="background:rgba(57,211,83,0.04);border:1px solid rgba(57,211,83,0.25);border-radius:10px;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
+        <span style="font-size:20px;">&#128452;</span>
+        <span class="bold text-green">Base de datos MySQL</span>
+        <span class="text-muted text-xs">(&quot;memoria&quot; del sistema entre sesiones)</span>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+        <span class="badge" style="background:rgba(57,211,83,0.08);color:#3fb950;border:1px solid rgba(57,211,83,0.25)">Guarda cada intento y resultado</span>
+        <span class="badge" style="background:rgba(57,211,83,0.08);color:#3fb950;border:1px solid rgba(57,211,83,0.25)">Alimenta el contexto de la IA</span>
+        <span class="badge" style="background:rgba(57,211,83,0.08);color:#3fb950;border:1px solid rgba(57,211,83,0.25)">M&aacute;s eficiente con cada sesi&oacute;n</span>
+      </div>
+    </div>
+  </div>
+  <div class="callout" style="border-color:#00ffc3;background:rgba(0,255,195,0.04)">
+    <div class="callout-title text-accent">Idea clave del sistema</div>
+    ARES no es un script que ejecuta Metasploit en bucle. La IA act&uacute;a como
+    <span class="bold">cerebro t&aacute;ctico</span>: razona sobre el historial, prioriza el esfuerzo,
+    y adapta sus decisiones a lo que ha funcionado antes.
+    Cada ataque exitoso hace al sistema m&aacute;s eficiente en el siguiente.
+  </div>
+  <div style="margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid #30363d;
+              display:flex;justify-content:space-between;align-items:center;color:#8b949e;font-size:11px;">
+    <span>ARES &mdash; Trabajo de Fin de Grado &middot; Documentaci&oacute;n T&eacute;cnica</span>
+    <span class="mono">backend/ia*.js &middot; AIAutoPwn.jsx</span>
+    <span>Abril 2026</span>
+  </div>
+</div>
+
+
+<!-- PAG I: AGENTES DEL SISTEMA -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(0,255,195,0.15);color:#00ffc3">F</div>
+    <div><h2 style="color:#00ffc3">Agentes del Sistema &mdash; Arquitectura por M&oacute;dulos</h2>
+    <div class="subtitle">Qu&eacute; hace cada agente, sus funciones, fichero y l&iacute;nea de c&oacute;digo exacta</div></div>
+  </div>
+
+  <div class="callout" style="border-color:#00ffc3;background:rgba(0,255,195,0.06)">
+    <div class="callout-title text-accent">Definici&oacute;n de agente en ARES</div>
+    Cada <span class="bold">agente</span> es un m&oacute;dulo del sistema con una responsabilidad concreta y bien definida.
+    Los agentes se comunican mediante HTTP REST (frontend &harr; backend) o llamadas a binarios C (backend &harr; core).
+    El icono <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.1rem .4rem;border-radius:4px;font-size:11px;font-weight:700;">IA</span>
+    indica que la funci&oacute;n realiza una consulta al modelo Qwen2.5-CyberSecurity.
+  </div>
+
+  <!-- AGENTE 1: NetworkScanAgent -->
+  <div style="border:1.5px solid rgba(0,255,195,0.4);border-radius:12px;padding:1rem;background:rgba(0,255,195,0.03);margin-top:1rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,255,195,0.15);display:flex;align-items:center;justify-content:center;font-size:19px;">&#128269;</div>
+      <div style="flex:1">
+        <div class="bold text-accent" style="font-size:13px;">NetworkScanAgent</div>
+        <div class="text-xs text-muted">Descubre qu&eacute; m&aacute;quinas est&aacute;n vivas en la red y qu&eacute; puertos tienen abiertos. Es el primer paso de cualquier ataque: sin saber qu&eacute; hay en la red no se puede hacer nada. Usa un ping scan r&aacute;pido (sin escanear todos los puertos) para no levantar demasiado ruido.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <div style="border:1px solid rgba(0,255,195,0.3);border-radius:8px;background:rgba(0,255,195,0.05);padding:.6rem .9rem;flex:1;min-width:260px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <span class="bold text-accent" style="font-size:11.5px;">scanNetwork(cidr)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 73 &nbsp;|&nbsp; network_scan.c : 80</span>
+        </div>
+        <div class="text-xs text-muted">Recibe el rango CIDR (ej: 10.0.0.0/24), lanza el binario C <span class="mono">core/network_scan</span> que ejecuta <span class="mono">nmap -T4 -F --open</span>, parsea la salida y devuelve la lista de hosts con sus puertos. El resultado alimenta directamente la Fase 2 y la Fase 3.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTE 2: VulnFinderAgent -->
+  <div style="border:1.5px solid rgba(227,179,65,0.4);border-radius:12px;padding:1rem;background:rgba(227,179,65,0.03);margin-top:.7rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(227,179,65,0.15);display:flex;align-items:center;justify-content:center;font-size:19px;">&#128165;</div>
+      <div style="flex:1">
+        <div class="bold text-yellow" style="font-size:13px;">VulnFinderAgent</div>
+        <div class="text-xs text-muted">Una vez se sabe qu&eacute; hosts existen, este agente escanea en profundidad cada uno para detectar las versiones exactas de los servicios que corren y buscar CVEs conocidos aplicables. Tambi&eacute;n incorpora CVEs hist&oacute;ricos que la IA sabe que han funcionado en esta red, aunque nmap no los confirme.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <div style="border:1px solid rgba(227,179,65,0.3);border-radius:8px;background:rgba(227,179,65,0.05);padding:.6rem .9rem;flex:1;min-width:260px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <span class="bold text-yellow" style="font-size:11.5px;">findVulns(ip)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 399</span>
+        </div>
+        <div class="text-xs text-muted">Ejecuta <span class="mono">nmap -sV --script vuln</span> sobre el host. Detecta versiones de servicios y scripts de vulnerabilidades. Devuelve una lista de CVEs con severidad, puerto y servicio afectado. Los resultados se guardan en BD.</div>
+      </div>
+      <div style="border:1px solid rgba(249,168,212,0.4);border-radius:8px;background:rgba(249,168,212,0.04);padding:.6rem .9rem;flex:1;min-width:260px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.05rem .35rem;border-radius:3px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-pink" style="font-size:11.5px;">injectHistoricalCves(vulns, cves_sugeridos)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">AIAutoPwn.jsx : 312</span>
+        </div>
+        <div class="text-xs text-muted">Mezcla los CVEs detectados por nmap con los que la IA sugiri&oacute; en el plan (basados en el historial). Si nmap no detecta un CVE pero la IA sabe que ha funcionado antes en esta red, lo inyecta igualmente para que se intente explotar.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTE 3: ExploitAgent -->
+  <div style="border:1.5px solid rgba(248,81,73,0.4);border-radius:12px;padding:1rem;background:rgba(248,81,73,0.03);margin-top:.7rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(248,81,73,0.15);display:flex;align-items:center;justify-content:center;font-size:19px;">&#9889;</div>
+      <div style="flex:1">
+        <div class="bold text-red" style="font-size:13px;">ExploitAgent</div>
+        <div class="text-xs text-muted">El agente que ejecuta los exploits reales contra los hosts. Tiene dos modos: el <span class="bold">fast path</span> (va directo a un combo m&oacute;dulo+payload que ya funcion&oacute;) y el <span class="bold">flujo normal</span> (itera por los CVEs en el orden que la IA ha priorizado hasta abrir sesi&oacute;n). Interacciona con Metasploit Framework.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <div style="border:1px solid rgba(248,81,73,0.3);border-radius:8px;background:rgba(248,81,73,0.05);padding:.6rem .9rem;flex:1;min-width:220px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <span class="bold text-red" style="font-size:11.5px;">runExploit(ip, module, payload, port)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 1566</span>
+        </div>
+        <div class="text-xs text-muted">Lanza UN exploit concreto con UN payload concreto. Usado exclusivamente en el fast path cuando ya se conoce la combinaci&oacute;n ganadora de BD. Guarda el resultado en <span class="mono">exploit_attempt</span> y si hay sesi&oacute;n, en <span class="mono">exploit_session</span>.</div>
+      </div>
+      <div style="border:1px solid rgba(248,81,73,0.3);border-radius:8px;background:rgba(248,81,73,0.05);padding:.6rem .9rem;flex:1;min-width:220px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <span class="bold text-red" style="font-size:11.5px;">exploit(ip, vulns)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 848</span>
+        </div>
+        <div class="text-xs text-muted">Flujo normal: recibe la lista de CVEs ya ordenada por la IA e itera por ellos con Metasploit hasta obtener sesi&oacute;n o agotar las opciones. Cada intento queda registrado en BD para que el historial crezca.</div>
+      </div>
+      <div style="border:1px solid rgba(249,168,212,0.4);border-radius:8px;background:rgba(249,168,212,0.04);padding:.6rem .9rem;flex:1;min-width:220px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.05rem .35rem;border-radius:3px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-pink" style="font-size:11.5px;">recommendPayload(module, os, arch)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 108</span>
+        </div>
+        <div class="text-xs text-muted">Para un m&oacute;dulo de Metasploit y un sistema operativo/arquitectura dados, la IA devuelve el mejor payload y alternativas ordenadas. Ej: EternalBlue prefiere bind_tcp sobre reverse_tcp.</div>
+      </div>
+      <div style="border:1px solid rgba(249,168,212,0.4);border-radius:8px;background:rgba(249,168,212,0.04);padding:.6rem .9rem;flex:1;min-width:220px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.05rem .35rem;border-radius:3px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-pink" style="font-size:11.5px;">analyzeFailure(module, payload, log)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 147</span>
+        </div>
+        <div class="text-xs text-muted">Cuando un exploit falla, la IA lee el log de error y diagnostica la causa probable (payload incorrecto, arquitectura, AV, puerto cerrado&hellip;) y sugiere qu&eacute; cambiar en el siguiente intento.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTE 4: SSHBruteAgent -->
+  <div style="border:1.5px solid rgba(88,166,255,0.4);border-radius:12px;padding:1rem;background:rgba(88,166,255,0.03);margin-top:.7rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(88,166,255,0.15);display:flex;align-items:center;justify-content:center;font-size:19px;">&#128273;</div>
+      <div style="flex:1">
+        <div class="bold text-blue" style="font-size:13px;">SSHBruteAgent</div>
+        <div class="text-xs text-muted">Cuando un host solo tiene el puerto 22 abierto y no hay CVEs explotables mediante Metasploit, este agente intenta acceder probando credenciales. Opera en dos fases: primero un diccionario plano de credenciales comunes en paralelo y si falla, lanza Hydra con RockYou.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <div style="border:1px solid rgba(88,166,255,0.3);border-radius:8px;background:rgba(88,166,255,0.05);padding:.6rem .9rem;flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <span class="bold text-blue" style="font-size:11.5px;">sshBrute(ip)</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 1330</span>
+        </div>
+        <div class="text-xs text-muted">Fase 1: prueba un pool de credenciales comunes en paralelo con sshpass. Fase 2 si falla: lanza <span class="mono">hydra</span> con el diccionario RockYou. Si obtiene acceso, registra la sesi&oacute;n SSH en BD y devuelve usuario y contrase&ntilde;a.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAG I (cont): AGENTES IA y REPORT -->
+<div class="page">
+  <div class="section-header">
+    <div class="phase-badge" style="background:rgba(188,140,255,0.15);color:#bc8cff">F</div>
+    <div><h2 style="color:#bc8cff">Agentes del Sistema (cont.) &mdash; Agentes con IA</h2>
+    <div class="subtitle">M&oacute;dulos donde el modelo Qwen2.5-CyberSecurity interviene directamente</div></div>
+  </div>
+
+  <!-- AGENTE 5: IAAgent / Aracni -->
+  <div style="border:2px solid rgba(188,140,255,0.6);border-radius:12px;padding:1rem;background:rgba(188,140,255,0.04);margin-bottom:.7rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(188,140,255,0.2);display:flex;align-items:center;justify-content:center;font-size:19px;">&#129504;</div>
+      <div style="flex:1">
+        <div class="bold text-purple" style="font-size:13px;">IAAgent &mdash; Aracni</div>
+        <div class="text-xs text-muted">Cerebro t&aacute;ctico del sistema. Es el &uacute;nico agente que razona en lugar de ejecutar: consulta el modelo Qwen2.5-CyberSecurity con el historial de la BD y devuelve decisiones en JSON estructurado. Toda IA del sistema pasa por <span class="mono">ia.js:ia_realizar_consulta()</span> &mdash; un &uacute;nico punto de entrada que gestiona la comunicaci&oacute;n HTTP, la limpieza del JSON y el log de cada consulta.</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.45rem;">
+
+      <div style="border:1px solid rgba(188,140,255,0.4);border-radius:8px;background:rgba(188,140,255,0.07);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(188,140,255,0.25);color:#bc8cff;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-purple" style="font-size:11.5px;">planAttack(hosts, contexto)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 304 &nbsp;|&nbsp; server.js : 1947</span>
+        </div>
+        <div class="text-xs text-muted">Funci&oacute;n m&aacute;s importante del sistema. Recibe todos los hosts descubiertos m&aacute;s el historial completo de la BD (comprometidos, CVEs exitosos, patrones de puerto, combos ganadores) y devuelve un plan de ataque ordenado por prioridad: qu&eacute; acci&oacute;n ejecutar en cada IP y en qu&eacute; orden.</div>
+      </div>
+
+      <div style="border:1px solid rgba(188,140,255,0.4);border-radius:8px;background:rgba(188,140,255,0.07);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(188,140,255,0.25);color:#bc8cff;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-purple" style="font-size:11.5px;">analyzeHost(ip, services, vulns, contexto)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 25 &nbsp;|&nbsp; server.js : 1966</span>
+        </div>
+        <div class="text-xs text-muted">Dado un host concreto con sus servicios y CVEs detectados, la IA devuelve la lista de CVEs reordenada por prioridad de explotaci&oacute;n, con una raz&oacute;n para cada uno y advertencias. El frontend reordena los CVEs seg&uacute;n este orden antes de pasarlos al ExploitAgent.</div>
+      </div>
+
+      <div style="border:1px solid rgba(188,140,255,0.4);border-radius:8px;background:rgba(188,140,255,0.07);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(188,140,255,0.25);color:#bc8cff;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-purple" style="font-size:11.5px;">suggestNextStep(ip, ports, vulns, historial)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 244 &nbsp;|&nbsp; server.js : 1983</span>
+        </div>
+        <div class="text-xs text-muted">Modo guiado: dado el estado actual del ataque (puertos abiertos, CVEs conocidos, acciones ya realizadas), la IA sugiere la siguiente acci&oacute;n concreta: exploit, deep-scan, ssh-brute, manual o skip.</div>
+      </div>
+
+      <div style="border:1px solid rgba(188,140,255,0.4);border-radius:8px;background:rgba(188,140,255,0.07);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(188,140,255,0.25);color:#bc8cff;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-purple" style="font-size:11.5px;">chat(prompt, historial)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 1909</span>
+        </div>
+        <div class="text-xs text-muted">Asistente conversacional libre. El usuario puede preguntar cualquier cosa de pentesting y la IA responde como "Aracni". Mantiene contexto de los &uacute;ltimos 6 mensajes. Llama a Ollama directamente sin pasar por ia_funciones_especificas.js.</div>
+      </div>
+
+      <div style="border:1px solid rgba(48,54,61,0.8);border-radius:8px;background:rgba(0,0,0,0.12);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(48,54,61,0.8);color:#8b949e;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">NO IA</span>
+            <span class="bold" style="font-size:11.5px;color:#8b949e;">getContext()</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">server.js : 1809</span>
+        </div>
+        <div class="text-xs text-muted">Consulta MySQL con 5 queries SQL y devuelve el historial completo de ataques. No llama al modelo &mdash; solo recupera datos de la BD para enriquecer el contexto que se le pasar&aacute; a la IA en las funciones anteriores.</div>
+      </div>
+
+      <div style="border:1px solid rgba(48,54,61,0.8);border-radius:8px;background:rgba(0,0,0,0.12);padding:.6rem 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="background:rgba(48,54,61,0.8);color:#8b949e;padding:.05rem .4rem;border-radius:4px;font-size:9.5px;font-weight:700;">NO IA</span>
+            <span class="bold" style="font-size:11.5px;color:#8b949e;">fastPath(ip, winningCombinations)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">AIAutoPwn.jsx : 181</span>
+        </div>
+        <div class="text-xs text-muted">L&oacute;gica JavaScript pura: cruza la lista de hosts con los combos ganadores de la BD. Si hay match, va directo al ExploitAgent con ese combo exacto, sin escanear ni consultar al modelo. Es la optimizaci&oacute;n m&aacute;s importante del sistema.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- AGENTE 6: ReportAgent -->
+  <div style="border:1.5px solid rgba(57,211,83,0.4);border-radius:12px;padding:1rem;background:rgba(57,211,83,0.03);margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(57,211,83,0.15);display:flex;align-items:center;justify-content:center;font-size:19px;">&#128196;</div>
+      <div style="flex:1">
+        <div class="bold text-green" style="font-size:13px;">ReportAgent</div>
+        <div class="text-xs text-muted">Una vez finalizado el ataque a un host, este agente pide a la IA que analice todos los resultados y redacte un informe ejecutivo en formato estructurado: resumen, hallazgos con criticidad, recomendaciones de parcheo y si el host fue comprometido.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <div style="border:1px solid rgba(249,168,212,0.4);border-radius:8px;background:rgba(249,168,212,0.04);padding:.6rem .9rem;flex:1;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;flex-wrap:wrap;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.05rem .35rem;border-radius:3px;font-size:9.5px;font-weight:700;">IA</span>
+            <span class="bold text-green" style="font-size:11.5px;">generateHostReport(ip, resultados)</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8b949e;">ia_funciones_especificas.js : 197 &nbsp;|&nbsp; server.js : 2000</span>
+        </div>
+        <div class="text-xs text-muted">Env&iacute;a a la IA los resultados completos del ataque (escaneo, CVEs, intentos de exploit, sesi&oacute;n obtenida). El modelo devuelve un informe ejecutivo JSON con t&iacute;tulo, resumen, hallazgos clasificados por criticidad, recomendaciones y el campo <span class="mono">comprometido: true/false</span>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA RESUMEN -->
+  <div class="card">
+    <div class="card-title">Tabla resumen &mdash; Todas las funciones, fichero, l&iacute;nea y uso de IA</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Agente</th>
+          <th>Funci&oacute;n</th>
+          <th style="text-align:center">IA</th>
+          <th>Fichero</th>
+          <th style="text-align:center">L&iacute;nea</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="bold text-accent">NetworkScanAgent</td>
+          <td class="mono" style="font-size:10.5px;">scanNetwork()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js &nbsp;/&nbsp; network_scan.c</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">73 / 80</td>
+        </tr>
+        <tr>
+          <td class="bold text-yellow">VulnFinderAgent</td>
+          <td class="mono" style="font-size:10.5px;">findVulns()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">399</td>
+        </tr>
+        <tr>
+          <td class="bold text-yellow">VulnFinderAgent</td>
+          <td class="mono" style="font-size:10.5px;">injectHistoricalCves()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">AIAutoPwn.jsx</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">312</td>
+        </tr>
+        <tr>
+          <td class="bold text-red">ExploitAgent</td>
+          <td class="mono" style="font-size:10.5px;">runExploit()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">1566</td>
+        </tr>
+        <tr>
+          <td class="bold text-red">ExploitAgent</td>
+          <td class="mono" style="font-size:10.5px;">exploit()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">848</td>
+        </tr>
+        <tr>
+          <td class="bold text-red">ExploitAgent</td>
+          <td class="mono" style="font-size:10.5px;">recommendPayload()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">108</td>
+        </tr>
+        <tr>
+          <td class="bold text-red">ExploitAgent</td>
+          <td class="mono" style="font-size:10.5px;">analyzeFailure()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">147</td>
+        </tr>
+        <tr>
+          <td class="bold text-blue">SSHBruteAgent</td>
+          <td class="mono" style="font-size:10.5px;">sshBrute()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">1330</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">planAttack()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">304</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">analyzeHost()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">25</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">suggestNextStep()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">244</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">chat()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">1909</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">getContext()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">server.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">1809</td>
+        </tr>
+        <tr style="background:rgba(188,140,255,0.05)">
+          <td class="bold text-purple">IAAgent (Aracni)</td>
+          <td class="mono" style="font-size:10.5px;">fastPath()</td>
+          <td style="text-align:center;color:#f85149;font-weight:700;">&#10007;</td>
+          <td class="mono text-muted" style="font-size:10px;">AIAutoPwn.jsx</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">181</td>
+        </tr>
+        <tr>
+          <td class="bold text-green">ReportAgent</td>
+          <td class="mono" style="font-size:10.5px;">generateHostReport()</td>
+          <td style="text-align:center;color:#3fb950;font-weight:700;">&#10003;</td>
+          <td class="mono text-muted" style="font-size:10px;">ia_funciones_especificas.js</td>
+          <td style="text-align:center" class="mono text-muted" style="font-size:10px;">197</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout mt-2" style="border-color:#bc8cff;background:rgba(188,140,255,0.06)">
+      <div class="callout-title text-purple">Punto de entrada &uacute;nico de la IA</div>
+      Todas las funciones marcadas con <span style="background:rgba(188,140,255,0.2);color:#bc8cff;padding:.1rem .4rem;border-radius:4px;font-size:11px;font-weight:700;">IA</span>
+      terminan llamando a <span class="mono bold">ia.js : ia_realizar_consulta()</span> (l&iacute;nea 20) &mdash;
+      el &uacute;nico sitio del c&oacute;digo que habla con el modelo Qwen2.5-CyberSecurity en el servidor del profesor.
+    </div>
+  </div>
+</div>
+
+<!-- PAG DB: TABLAS DE BD QUE USA LA IA -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-number">DB</div>
+    <div>
+      <div class="page-title">Base de Datos &amp; la IA</div>
+      <div class="page-subtitle">&iquest;De qu&eacute; tablas extrae el contexto hist&oacute;rico?</div>
+    </div>
+  </div>
+  <div class="page-content">
+
+    <p style="color:#8b949e;margin-bottom:1.2rem;">
+      Antes de planificar cualquier ataque, el frontend llama a <span class="mono bold" style="color:#58a6ff;">GET /ai-context</span>
+      (<span class="mono text-muted">server.js : 1809</span>). Este endpoint construye el contexto hist&oacute;rico ley&eacute;ndo
+      <strong style="color:#e6edf3;">3 tablas</strong> y lo devuelve como JSON al frontend, que lo pasa directamente
+      a <span class="mono bold" style="color:#bc8cff;">ia_planificar_ataque()</span>.
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1.5rem;">
+      <thead>
+        <tr style="background:rgba(88,166,255,0.12);">
+          <th style="padding:.5rem .8rem;text-align:left;color:#58a6ff;border-bottom:1px solid #30363d;">Tabla</th>
+          <th style="padding:.5rem .8rem;text-align:left;color:#58a6ff;border-bottom:1px solid #30363d;">Qu&eacute; contiene</th>
+          <th style="padding:.5rem .8rem;text-align:left;color:#58a6ff;border-bottom:1px solid #30363d;">Para qu&eacute; lo usa la IA</th>
+          <th style="padding:.5rem .8rem;text-align:center;color:#58a6ff;border-bottom:1px solid #30363d;">Campo en /ai-context</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #21262d;">
+          <td style="padding:.5rem .8rem;" class="mono bold" style="color:#3fb950;">exploit_session</td>
+          <td style="padding:.5rem .8rem;color:#8b949e;">Registro de cada sesi&oacute;n abierta (Meterpreter / shell): IP, CVE, tipo, fecha</td>
+          <td style="padding:.5rem .8rem;color:#e6edf3;">Saber qu&eacute; IPs ya fueron comprometidas y con qu&eacute; CVE</td>
+          <td style="padding:.5rem .8rem;text-align:center;" class="mono text-muted">compromised, workingCves</td>
+        </tr>
+        <tr style="border-bottom:1px solid #21262d;background:rgba(255,255,255,0.02);">
+          <td style="padding:.5rem .8rem;" class="mono bold" style="color:#f0883e;">exploit_attempt</td>
+          <td style="padding:.5rem .8rem;color:#8b949e;">Cada intento de exploit (exitoso o fallido): puerto, m&oacute;dulo, payload, output completo</td>
+          <td style="padding:.5rem .8rem;color:#e6edf3;">Tasas de &eacute;xito por puerto y combos m&oacute;dulo+payload exactos que abrieron sesi&oacute;n</td>
+          <td style="padding:.5rem .8rem;text-align:center;" class="mono text-muted">successPatterns, onlyFailed, winningCombinations</td>
+        </tr>
+        <tr style="border-bottom:1px solid #21262d;">
+          <td style="padding:.5rem .8rem;" class="mono bold" style="color:#8b949e;">hosts</td>
+          <td style="padding:.5rem .8rem;color:#8b949e;">Hosts descubiertos: IP, job_id</td>
+          <td style="padding:.5rem .8rem;color:#e6edf3;">JOIN para traducir host_id &rarr; IP legible en el prompt</td>
+          <td style="padding:.5rem .8rem;text-align:center;" class="mono text-muted">(JOIN interno)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display:flex;align-items:stretch;gap:.6rem;margin-bottom:1.4rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:130px;background:rgba(88,166,255,0.07);border:1px solid rgba(88,166,255,0.25);border-radius:8px;padding:.8rem;text-align:center;">
+        <div style="font-size:10px;color:#8b949e;margin-bottom:.3rem;">Frontend</div>
+        <div class="mono bold" style="color:#58a6ff;font-size:12px;">GET /ai-context</div>
+        <div style="font-size:10px;color:#8b949e;margin-top:.3rem;">server.js : 1809</div>
+      </div>
+      <div style="display:flex;align-items:center;color:#8b949e;font-size:18px;">&rarr;</div>
+      <div style="flex:2;min-width:180px;background:rgba(240,136,62,0.07);border:1px solid rgba(240,136,62,0.25);border-radius:8px;padding:.8rem;">
+        <div style="font-size:10px;color:#8b949e;margin-bottom:.4rem;">5 queries a MySQL</div>
+        <div style="font-size:11px;color:#e6edf3;line-height:1.7;">
+          &bull; <span class="mono" style="color:#3fb950;">exploit_session</span> &rarr; comprometidos<br>
+          &bull; <span class="mono" style="color:#f0883e;">exploit_attempt</span> &rarr; patrones &amp; combos<br>
+          &bull; <span class="mono" style="color:#8b949e;">hosts</span> &rarr; JOIN IPs
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;color:#8b949e;font-size:18px;">&rarr;</div>
+      <div style="flex:2;min-width:180px;background:rgba(188,140,255,0.07);border:1px solid rgba(188,140,255,0.25);border-radius:8px;padding:.8rem;">
+        <div style="font-size:10px;color:#8b949e;margin-bottom:.4rem;">JSON al frontend</div>
+        <div style="font-size:11px;color:#e6edf3;line-height:1.7;">
+          <span class="mono" style="color:#bc8cff;">compromised</span> &bull; <span class="mono" style="color:#bc8cff;">workingCves</span><br>
+          <span class="mono" style="color:#bc8cff;">successPatterns</span> &bull; <span class="mono" style="color:#bc8cff;">onlyFailed</span><br>
+          <span class="mono" style="color:#bc8cff;">winningCombinations</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;color:#8b949e;font-size:18px;">&rarr;</div>
+      <div style="flex:1;min-width:130px;background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.25);border-radius:8px;padding:.8rem;text-align:center;">
+        <div style="font-size:10px;color:#8b949e;margin-bottom:.3rem;">IA</div>
+        <div class="mono bold" style="color:#3fb950;font-size:11px;">ia_planificar_ataque()</div>
+        <div style="font-size:10px;color:#8b949e;margin-top:.3rem;">ia_funciones_especificas.js : 304</div>
+      </div>
+    </div>
+
+    <div class="callout" style="border-color:#f85149;background:rgba(248,81,73,0.06);">
+      <div class="callout-title" style="color:#f85149;">&#9888; activity_logs &mdash; no la usa la IA</div>
+      La tabla <span class="mono bold">activity_logs</span> existe en la BD para auditor&iacute;a interna (registro de acciones del sistema),
+      pero <strong>no aparece en ninguna query de <span class="mono">/ai-context</span></strong>.
+      La IA <em>nunca</em> la lee. Solo accede a los resultados concretos de explotaci&oacute;n
+      (<span class="mono">exploit_session</span>, <span class="mono">exploit_attempt</span>),
+      no a los logs de actividad general.
+    </div>
+
+  </div>
+</div>
+
+
+</body>
+</html>

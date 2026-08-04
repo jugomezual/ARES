@@ -1,0 +1,41 @@
+// ================================================
+// AI configuration — equivalent to ia_config.php
+// Copy this file as ia_config.js and uncomment the block you want to use.
+// ================================================
+
+// ========================
+// GEMINI (Google API)
+// ========================
+// Get your free API key at: https://aistudio.google.com/usage
+//
+// module.exports = {
+//   tipo:     "gemini",
+//   api_key:  "YOUR_API_KEY",
+//   ia_modelo: "gemini-2.5-flash",
+// };
+
+
+// ========================
+// OLLAMA (local or lab server)
+// ========================
+// If you have Ollama locally, use http://localhost:11434
+//
+// module.exports = {
+//   tipo:          "ollama",
+//   llama_api_url: "http://SERVER:11434/api/generate",
+//   ia_modelo:     "gemma4:e4b",
+//   // ia_modelo:  "qingmian/Qwen2.5-7B-CyberSecurity:latest",
+// };
+
+
+// ========================
+// OPENWEBUI (OpenAI-compatible API)
+// ========================
+//
+// module.exports = {
+//   tipo:          "openwebui",
+//   llama_api_url: "http://SERVER:8080/api/chat/completions",
+//   llama_api_key: "YOUR_JWT_TOKEN",
+//   ia_modelo:     "gemma4:26b",
+//   // ia_modelo:  "llama3:70b",
+// };

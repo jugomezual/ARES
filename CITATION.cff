@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ARES — Automated Red-team Exploit System"
+abstract: >-
+  ARES is a semi-automated, AI-assisted penetration testing platform that
+  orchestrates Metasploit through local large language models for automated
+  security auditing, separating LLM-based decision-making from exploit
+  execution.
+type: software
+authors:
+  - given-names: Miguel
+    family-names: "Ruíz Ramírez"
+    affiliation: "University of Almería"
+  - given-names: Julio
+    family-names: "Gómez López"
+    affiliation: "University of Almería"
+version: "1.0.0"
+date-released: "2026-08-04"
+license: MIT
+keywords:
+  - penetration testing
+  - security auditing
+  - metasploit
+  - large language models
+  - LLM agents
+  - vulnerability assessment
+# Update the repository URL below with your actual GitHub URL before publishing.
+repository-code: "https://github.com/miker-codes/ARES"
+url: "https://github.com/miker-codes/ARES"
+# Once archived on Zenodo, add the minted DOI here:
+# identifiers:
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXX"

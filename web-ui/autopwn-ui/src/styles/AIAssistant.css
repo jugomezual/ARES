@@ -1,0 +1,601 @@
+/* ── Aracni side panel ──────────────────────────────────────────────────────── */
+
+/* ── Panel shell ── */
+.aracni-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: 400px;
+  z-index: 8500;
+  display: flex;
+  flex-direction: column;
+
+  /* Near-black base — no red tint in the main surface */
+  background: linear-gradient(175deg, #111014 0%, #0c0b0d 50%, #090809 100%);
+
+  /* Left border glow: the one place where red shines */
+  box-shadow:
+    -1px  0    0    0    #cc001a44,
+    -5px  0   24px  0    #cc001a14,
+    -16px 0   56px  0    #cc001a09,
+    inset 1px  0   40px  0    #cc001a04;
+
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.35s ease;
+  will-change: transform;
+
+  border-radius: 14px 0 0 14px;
+  overflow: hidden;
+}
+
+.aracni-panel--open {
+  transform: translateX(0);
+  box-shadow:
+    -1px  0    0    0    #cc001a77,
+    -7px  0   36px  0    #cc001a22,
+    -20px 0   72px  0    #cc001a0f,
+    inset 1px  0   40px  0    #cc001a07;
+}
+
+/* Scanline overlay — very subtle */
+.aracni-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255, 255, 255, 0.008) 3px,
+    rgba(255, 255, 255, 0.008) 4px
+  );
+}
+
+/* Red accent top bar */
+.aracni-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent 5%, #cc001a77 40%, #cc001a55 60%, transparent 95%);
+  z-index: 1;
+}
+
+/* ── Header ── */
+.aracni-panel-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(to bottom, rgba(20,17,22,0.8) 0%, transparent 100%);
+  flex-shrink: 0;
+}
+
+.aracni-panel-logo {
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 5px #cc001a88);
+}
+
+.aracni-panel-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.aracni-panel-title {
+  font-family: "Courier New", monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e83050;                       /* red — accent only */
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px #cc001a88, 0 0 22px #cc001a33;
+}
+
+.aracni-panel-sub {
+  font-family: "Courier New", monospace;
+  font-size: 0.58rem;
+  color: #5a4850;                       /* muted neutral, not red */
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Status dot */
+.aracni-panel-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 2px;
+  font-family: "Courier New", monospace;
+  font-size: 0.57rem;
+  color: #5a4850;
+  letter-spacing: 0.08em;
+}
+.aracni-panel-status::before {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #cc001a;
+  box-shadow: 0 0 5px #cc001a, 0 0 10px #cc001a55;
+  animation: statusPulse 2.4s ease-in-out infinite;
+}
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; box-shadow: 0 0 9px #cc001a, 0 0 18px #cc001a55; }
+}
+
+.aracni-panel-close {
+  margin-left: auto;
+  background: none;
+  border: 1px solid transparent;
+  color: #4a3840;
+  font-size: 0.8rem;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.aracni-panel-close:hover {
+  color: #e83050;
+  border-color: #cc001a33;
+  background: rgba(204,0,26,0.08);
+}
+
+/* ── Messages area ── */
+.aracni-panel-messages {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(204,0,26,0.2) transparent;
+}
+.aracni-panel-messages::-webkit-scrollbar { width: 3px; }
+.aracni-panel-messages::-webkit-scrollbar-track { background: transparent; }
+.aracni-panel-messages::-webkit-scrollbar-thumb {
+  background: rgba(204,0,26,0.25);
+  border-radius: 2px;
+}
+
+/* Empty state */
+.aracni-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 18px;
+  text-align: center;
+  padding: 0 28px;
+}
+.aracni-panel-empty-icon {
+  font-size: 2.6rem;
+  filter: drop-shadow(0 0 12px #cc001a77);
+  animation: emptyPulse 3.2s ease-in-out infinite;
+}
+@keyframes emptyPulse {
+  0%, 100% { filter: drop-shadow(0 0 8px #cc001a55); }
+  50%       { filter: drop-shadow(0 0 18px #cc001a99); }
+}
+.aracni-panel-empty p {
+  font-family: "Courier New", monospace;
+  font-size: 0.72rem;
+  color: #5a5060;                       /* neutral muted */
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+}
+.aracni-panel-empty p strong {
+  color: #c83048;                       /* red accent only on name */
+}
+
+/* ── Individual messages ── */
+.aracni-msg {
+  max-width: 88%;
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  animation: msgIn 0.2s ease-out both;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.aracni-msg pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+}
+
+/* User bubble — right aligned, charcoal with subtle warm tint */
+.aracni-msg--user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #1e1b22 0%, #181520 100%);
+  border: 1px solid rgba(204,0,26,0.22);
+  border-radius: 14px 4px 14px 14px;
+  padding: 10px 14px;
+  color: #d8d0dc;                       /* near-white, slight cool */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Assistant bubble — near-black, text almost white */
+.aracni-msg--assistant {
+  align-self: flex-start;
+  background: linear-gradient(135deg, #131118 0%, #0f0d13 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px 14px 14px 14px;
+  padding: 10px 14px 10px 16px;
+  color: #b8afc0;                       /* soft lavender-grey */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  position: relative;
+}
+/* Red left accent bar */
+.aracni-msg--assistant::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, transparent, #cc001a66, transparent);
+}
+
+/* ── Thinking dots ── */
+.aracni-msg--thinking {
+  padding: 12px 16px;
+}
+.aracni-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.aracni-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cc001a;
+  box-shadow: 0 0 6px #cc001a77;
+  animation: aracniDot 1.4s ease-in-out infinite;
+}
+.aracni-dots span:nth-child(2) { animation-delay: 0.18s; }
+.aracni-dots span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes aracniDot {
+  0%, 75%, 100% { opacity: 0.2;  transform: scale(0.72); }
+  37%            { opacity: 1;    transform: scale(1.15); box-shadow: 0 0 10px #cc001a; }
+}
+
+/* ── Input area ── */
+.aracni-panel-input {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 18px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: linear-gradient(to top, rgba(10,9,12,0.8) 0%, transparent 100%);
+}
+
+/* Glow-border wrapper */
+.aracni-input-wrap {
+  position: relative;
+  border-radius: 10px;
+  padding: 1px;
+  background: rgba(255,255,255,0.07);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.aracni-input-wrap:focus-within {
+  background: linear-gradient(135deg, #cc001a55, #cc001a22);
+  box-shadow: 0 0 14px rgba(204,0,26,0.18);
+}
+
+.aracni-panel-input textarea {
+  width: 100%;
+  background: #0e0c12;
+  border: none;
+  border-radius: 9px;
+  color: #d8d0dc;                       /* same as user bubble text */
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+  padding: 10px 12px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  line-height: 1.55;
+}
+.aracni-panel-input textarea::placeholder {
+  color: #4a4050;
+  font-style: italic;
+}
+.aracni-panel-input textarea:disabled { opacity: 0.4; }
+
+/* Bottom row */
+.aracni-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.aracni-input-hint {
+  font-family: "Courier New", monospace;
+  font-size: 0.57rem;
+  color: #3a3040;
+  letter-spacing: 0.06em;
+}
+
+.aracni-panel-input button {
+  background: linear-gradient(135deg, #cc001a, #99000f);
+  border: 1px solid rgba(204,0,26,0.55);
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  font-size: 0.73rem;
+  font-weight: 700;
+  padding: 8px 22px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s, opacity 0.15s;
+  box-shadow: 0 2px 10px rgba(204,0,26,0.28), inset 0 1px 0 rgba(255,50,50,0.15);
+}
+.aracni-panel-input button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e60020, #bb001a);
+  box-shadow: 0 4px 18px rgba(204,0,26,0.45), 0 0 8px rgba(204,0,26,0.25);
+  border-color: rgba(204,0,26,0.8);
+}
+.aracni-panel-input button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 6px rgba(204,0,26,0.25);
+}
+.aracni-panel-input button:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+}
+
+/* ── Right-edge trigger strip ── */
+.aracni-pull-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 8400;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 3px;
+
+  width: 28px;
+  height: 64px;
+  background: rgba(204, 0, 26, 0.22);
+  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+  filter: drop-shadow(-2px 0 6px rgba(204, 0, 26, 0.25));
+
+  color: rgba(204, 0, 26, 0.55);
+  font-size: 0.45rem;
+
+  transition: width 0.2s ease, background 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+.aracni-pull-tab:hover {
+  width: 34px;
+  background: rgba(204, 0, 26, 0.4);
+  color: #ff2244;
+  filter: drop-shadow(-2px 0 10px rgba(204, 0, 26, 0.5));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Attack mode — panel wider + new sub-components
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Panel expands when in attack mode */
+.aracni-panel--attack {
+  width: 560px;
+}
+
+/* ── Mode toggle tabs ── */
+.aracni-mode-tabs {
+  display: flex;
+  gap: 3px;
+  margin-left: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.aracni-mode-tab {
+  background: none;
+  border: none;
+  color: #3a3040;
+  font-size: 0.85rem;
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, filter 0.15s;
+  filter: grayscale(1) opacity(0.4);
+  padding: 0;
+}
+.aracni-mode-tab:hover {
+  background: rgba(204,0,26,0.1);
+  filter: grayscale(0) opacity(0.7);
+}
+.aracni-mode-tab--active {
+  background: rgba(204,0,26,0.18);
+  filter: grayscale(0) opacity(1);
+  box-shadow: 0 0 8px rgba(204,0,26,0.2);
+}
+
+/* ── Attack wrapper ── */
+.aracni-attack {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Phase bar ── */
+.aracni-attack-phasebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+
+.aracni-attack-phase-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.aracni-attack-phase-dot--pulse {
+  animation: attackDotPulse 1.6s ease-in-out infinite;
+}
+@keyframes attackDotPulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+.aracni-attack-phase-label {
+  font-family: "Courier New", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  transition: color 0.3s;
+}
+
+.aracni-attack-badges {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
+.aracni-attack-badge {
+  font-family: "Courier New", monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  transition: color 0.3s;
+}
+
+/* ── Log area (reuses panel-messages scroll behaviour) ── */
+.aracni-attack-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(204,0,26,0.15) transparent;
+}
+.aracni-attack-log::-webkit-scrollbar { width: 3px; }
+.aracni-attack-log::-webkit-scrollbar-track { background: transparent; }
+.aracni-attack-log::-webkit-scrollbar-thumb {
+  background: rgba(204,0,26,0.2);
+  border-radius: 2px;
+}
+
+.aracni-attack-line {
+  font-family: "Courier New", monospace;
+  font-size: 0.72rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-all;
+  animation: msgIn 0.12s ease-out both;
+}
+.aracni-attack-line--typing {
+  animation: none;   /* no fade-in while still typing */
+}
+.aracni-attack-line--waiting {
+  padding: 2px 0 4px;
+  animation: none;
+}
+.aracni-cursor {
+  display: inline-block;
+  animation: cursorBlink 0.9s step-end infinite;
+  opacity: 1;
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Empty state */
+.aracni-attack-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 14px;
+  text-align: center;
+  padding: 0 28px;
+}
+.aracni-attack-empty p {
+  font-family: "Courier New", monospace;
+  font-size: 0.7rem;
+  color: #3a3040;
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.aracni-attack-empty p span {
+  color: #c83048;
+}
+.aracni-attack-hints {
+  font-size: 0.6rem !important;
+  color: #2a2030 !important;
+  line-height: 2 !important;
+}
+
+/* ── Network input (reuses aracni-panel-input chrome) ── */
+.aracni-attack-net-input {
+  width: 100%;
+  background: #0e0c12;
+  border: none;
+  border-radius: 9px;
+  color: #d8d0dc;
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+  padding: 10px 12px;
+  outline: none;
+  box-sizing: border-box;
+  line-height: 1.55;
+}
+.aracni-attack-net-input::placeholder {
+  color: #4a4050;
+  font-style: italic;
+}
+.aracni-attack-net-input:disabled { opacity: 0.4; }

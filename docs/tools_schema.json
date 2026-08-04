@@ -1,0 +1,347 @@
+{
+  "_meta": {
+    "description": "Tool schema de AutoPwn para agente LLM (Ollama / OpenAI function calling compatible)",
+    "version": "1.0",
+    "base_url": "http://localhost:3000",
+    "uso": "El LLM recibe este schema y decide qué herramienta llamar en cada paso del pentest. Cada tool corresponde a un endpoint POST del backend de AutoPwn.",
+    "flujo_tipico": [
+      "1. scan_network  → descubrir hosts vivos en la red",
+      "2. scan_host     → enumerar servicios y versiones de un host concreto",
+      "3. find_vulns    → encontrar CVEs explotables en los servicios",
+      "4. msf_search    → para cada CVE crítico, consultar qué módulo de Metasploit usar",
+      "5. run_exploit   → lanzar el módulo concreto elegido (atómico: 1 módulo + 1 payload)",
+      "6. ssh_brute     → si hay SSH y los exploits fallan, probar credenciales una a una con run_ssh",
+      "7. run_command   → ejecutar comandos en la sesión abierta",
+      "8. privesc       → intentar escalar privilegios en la sesión",
+      "9. close_session → cerrar la sesión al terminar"
+    ]
+  },
+
+  "tools": [
+
+    {
+      "name": "scan_network",
+      "description": "Escanea una red completa en formato CIDR para descubrir hosts vivos y sus puertos abiertos. Usa nmap a bajo nivel. Devuelve una lista de hosts con sus puertos. Úsalo como primer paso para mapear el entorno objetivo.",
+      "endpoint": "POST /scan-network",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "network": {
+            "type": "string",
+            "description": "Red en formato CIDR, por ejemplo '192.168.1.0/24' o '10.0.0.0/24'."
+          }
+        },
+        "required": ["network"]
+      },
+      "returns": {
+        "hosts": "Array de objetos { ip: string, ports: number[] } con los hosts descubiertos y sus puertos abiertos."
+      },
+      "example_call": { "network": "10.0.0.0/24" },
+      "example_response": {
+        "hosts": [
+          { "ip": "10.0.0.82", "ports": [21, 22, 80, 445] },
+          { "ip": "10.0.0.91", "ports": [22, 3306] }
+        ]
+      },
+      "notas_para_ia": "Si el resultado está vacío, la red puede no tener hosts activos o el CIDR puede ser incorrecto. No saltes este paso: la lista de IPs es necesaria para los pasos siguientes."
+    },
+
+    {
+      "name": "scan_host",
+      "description": "Realiza un escaneo profundo de un host específico con nmap -sV para identificar servicios exactos y versiones de software. Más detallado que scan_network. Úsalo sobre cada host interesante encontrado en scan_network.",
+      "endpoint": "POST /scan-host",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Dirección IP del host a escanear, por ejemplo '10.0.0.82'."
+          }
+        },
+        "required": ["target"]
+      },
+      "returns": {
+        "target": "IP escaneada.",
+        "services": "Array de objetos { port, proto, service, version } con cada servicio detectado."
+      },
+      "example_call": { "target": "10.0.0.82" },
+      "example_response": {
+        "target": "10.0.0.82",
+        "services": [
+          { "port": 21,  "proto": "tcp", "service": "ftp",  "version": "vsftpd 2.3.4" },
+          { "port": 22,  "proto": "tcp", "service": "ssh",  "version": "OpenSSH 4.7" },
+          { "port": 445, "proto": "tcp", "service": "smb",  "version": "Samba 3.0.20" }
+        ]
+      },
+      "notas_para_ia": "Fíjate en las versiones de software. Versiones antiguas (vsftpd 2.3.4, Samba 3.0.20, OpenSSH <7) tienen CVEs críticos conocidos. Usa esta información para priorizar en find_vulns."
+    },
+
+    {
+      "name": "msf_search",
+      "description": "Consulta Metasploit en tiempo real para un CVE dado. Devuelve los módulos disponibles ordenados por rank (excellent primero). Úsalo justo después de find_vulns para descubrir qué módulo de Metasploit usar antes de llamar a run_exploit.",
+      "endpoint": "POST /msf-search",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "cve": {
+            "type": "string",
+            "description": "Identificador CVE en formato estándar, p.ej. 'CVE-2011-2523'."
+          }
+        },
+        "required": ["cve"]
+      },
+      "returns": {
+        "cve": "El CVE consultado.",
+        "source": "'static' si el módulo viene del mapa interno, 'dynamic' si se buscó en Metasploit en tiempo real.",
+        "modules": "Array de objetos { name, rank, payload, description } ordenados de mejor a peor. El primero es el más recomendado."
+      },
+      "example_call": { "cve": "CVE-2011-2523" },
+      "example_response": {
+        "cve": "CVE-2011-2523",
+        "source": "static",
+        "modules": [
+          { "name": "exploit/unix/ftp/vsftpd_234_backdoor", "rank": "excellent", "payload": null, "description": "" }
+        ]
+      },
+      "notas_para_ia": "Llámalo siempre antes de run_exploit. Usa el primer módulo del array (rank más alto). Si modules está vacío, no hay exploit disponible para ese CVE en Metasploit — pasa al siguiente."
+    },
+
+    {
+      "name": "find_vulns",
+      "description": "Lanza nmap --script vuln contra un host para encontrar vulnerabilidades explotables y mapearlas a CVEs conocidos. Incluye detección de EternalBlue (MS17-010), Shellshock, vsftpd backdoor, Heartbleed y más. Devuelve CVEs con severidad.",
+      "endpoint": "POST /find-vulns",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "Dirección IP del host a analizar."
+          }
+        },
+        "required": ["ip"]
+      },
+      "returns": {
+        "vulns": "Array de objetos { cve, port, service, severity } ordenados por gravedad. severity puede ser 'critical', 'high', 'medium' o 'low'."
+      },
+      "example_call": { "ip": "10.0.0.82" },
+      "example_response": {
+        "vulns": [
+          { "cve": "CVE-2011-2523", "port": 21,  "service": "ftp", "severity": "critical" },
+          { "cve": "CVE-2007-2447", "port": 445, "service": "smb", "severity": "critical" },
+          { "cve": "CVE-2017-0144", "port": 445, "service": "smb", "severity": "critical" }
+        ]
+      },
+      "notas_para_ia": "Prioriza CVEs con severity='critical'. Si hay varios, elige el que tenga mayor probabilidad de éxito según el servicio y versión detectados en scan_host. No es necesario probar todos si uno da sesión."
+    },
+
+    {
+      "name": "exploit",
+      "description": "Lanza uno o varios exploits de Metasploit contra un host para las CVEs indicadas. Prueba payloads automáticamente hasta abrir una sesión (shell o meterpreter). Si tiene éxito, devuelve un sessionId que puedes usar en run_command y privesc.",
+      "endpoint": "POST /exploit",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "IP del objetivo."
+          },
+          "vulns": {
+            "type": "array",
+            "description": "Lista de vulnerabilidades a explotar. Cada elemento tiene 'cve' y 'port'.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cve":  { "type": "string", "description": "Identificador CVE, p.ej. 'CVE-2011-2523'" },
+                "port": { "type": "integer", "description": "Puerto donde se detectó la vulnerabilidad." }
+              },
+              "required": ["cve", "port"]
+            }
+          }
+        },
+        "required": ["ip", "vulns"]
+      },
+      "returns": {
+        "success": "Boolean. true si se abrió al menos una sesión.",
+        "sessionId": "ID de sesión (integer) si success=true. Úsalo en run_command y privesc.",
+        "output": "Log completo del proceso de explotación."
+      },
+      "example_call": {
+        "ip": "10.0.0.82",
+        "vulns": [
+          { "cve": "CVE-2011-2523", "port": 21 }
+        ]
+      },
+      "example_response": {
+        "success": true,
+        "sessionId": 1,
+        "output": "[+] Módulo: exploit/unix/ftp/vsftpd_234_backdoor\n[+] Sesión 1 abierta (10.0.0.82:6200)"
+      },
+      "notas_para_ia": "Si el exploit falla, no repitas el mismo CVE. Prueba el siguiente de la lista. Si success=true, guarda el sessionId para run_command. Algunos exploits (vsftpd backdoor) no necesitan payload — aceptan solo cmd/unix/interact."
+    },
+
+    {
+      "name": "ssh_brute",
+      "description": "Realiza fuerza bruta de credenciales SSH contra un host. Detecta automáticamente el perfil SSH correcto (moderno, legacy, group1, etc.) aunque el servidor sea muy antiguo. Si tiene éxito, devuelve sessionId de sesión SSH.",
+      "endpoint": "POST /ssh-brute",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "IP del host con servicio SSH."
+          },
+          "users": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Lista de usuarios a probar. Si se omite, prueba ['root'] por defecto.",
+            "default": ["root"]
+          },
+          "passwords": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Lista de contraseñas a probar. Si se omite, usa lista de contraseñas comunes por defecto.",
+            "default": ["12345", "root", "toor", "admin", "password", "1234", "123456"]
+          }
+        },
+        "required": ["ip"]
+      },
+      "returns": {
+        "success": "Boolean.",
+        "sessionId": "ID de sesión SSH si success=true.",
+        "user": "Usuario que funcionó.",
+        "password": "Contraseña que funcionó.",
+        "log": "Log del proceso."
+      },
+      "example_call": {
+        "ip": "10.0.0.82",
+        "users": ["root", "admin", "mike"],
+        "passwords": ["12345", "password", "admin"]
+      },
+      "example_response": {
+        "success": true,
+        "sessionId": 2,
+        "user": "root",
+        "password": "12345",
+        "log": "[+] ¡Conexión SSH exitosa! root@10.0.0.82 password: \"12345\""
+      },
+      "notas_para_ia": "Úsalo cuando scan_host detecte SSH (puerto 22) y los exploits de Metasploit fallen o no apliquen. Las contraseñas más comunes en sistemas de laboratorio/CTF son: 12345, root, toor, admin, password."
+    },
+
+    {
+      "name": "run_command",
+      "description": "Ejecuta un comando de shell arbitrario en una sesión activa (SSH o Meterpreter). Permite explorar el sistema comprometido: ver archivos, usuarios, procesos, red interna, etc.",
+      "endpoint": "POST /exploit-cmd",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "ID de sesión activa obtenido de exploit o ssh_brute."
+          },
+          "command": {
+            "type": "string",
+            "description": "Comando de shell a ejecutar, p.ej. 'whoami', 'id', 'cat /etc/passwd', 'uname -a'."
+          }
+        },
+        "required": ["sessionId", "command"]
+      },
+      "returns": {
+        "output": "Salida estándar del comando ejecutado."
+      },
+      "example_call": { "sessionId": 1, "command": "whoami" },
+      "example_response": { "output": "root" },
+      "notas_para_ia": "Comandos útiles de reconocimiento post-explotación: 'whoami', 'id', 'uname -a', 'cat /etc/passwd', 'ifconfig', 'netstat -antp', 'find / -perm -4000 2>/dev/null' (busca SUID). Si whoami devuelve 'root', ya tienes privilegios máximos."
+    },
+
+    {
+      "name": "privesc",
+      "description": "Intenta escalar privilegios en una sesión activa de Meterpreter usando módulos de escalada local de Metasploit (do_brk, ptrace_kmod, pwnkit, etc.). Úsalo cuando la sesión sea de usuario no-root.",
+      "endpoint": "POST /session-privesc",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "ID de sesión de Meterpreter activa."
+          }
+        },
+        "required": ["sessionId"]
+      },
+      "returns": {
+        "success": "Boolean. true si la escalada funcionó.",
+        "log": "Log detallado de los módulos probados."
+      },
+      "example_call": { "sessionId": 1 },
+      "example_response": {
+        "success": true,
+        "log": "[*] Probando exploit/linux/local/do_brk...\n[+] Command exec ran successfully"
+      },
+      "notas_para_ia": "Solo disponible para sesiones Meterpreter (no SSH). Úsalo después de exploit si run_command('whoami') devuelve un usuario no-root. Si ya eres root, omite este paso."
+    },
+
+    {
+      "name": "close_session",
+      "description": "Cierra una sesión activa (SSH o Meterpreter) y la elimina del registro. Úsalo al finalizar la explotación de un host.",
+      "endpoint": "POST /session-close",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "ID de sesión a cerrar."
+          }
+        },
+        "required": ["sessionId"]
+      },
+      "returns": {
+        "success": "Boolean."
+      },
+      "example_call": { "sessionId": 1 },
+      "example_response": { "success": true },
+      "notas_para_ia": "Cierra siempre las sesiones al terminar con un host para liberar recursos de Metasploit."
+    },
+
+    {
+      "name": "connect_vpn",
+      "description": "Establece una conexión VPN o Netcat al entorno objetivo. Úsalo como paso previo si la red objetivo está detrás de una VPN o requiere un túnel de red.",
+      "endpoint": "POST /connect",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["vpn", "ncat"],
+            "description": "Tipo de conexión: 'vpn' para OpenVPN, 'ncat' para túnel Netcat."
+          },
+          "ip":       { "type": "string",  "description": "IP del servidor VPN/ncat." },
+          "port":     { "type": "integer", "description": "Puerto de destino." },
+          "user":     { "type": "string",  "description": "Usuario de autenticación." },
+          "password": { "type": "string",  "description": "Contraseña." }
+        },
+        "required": ["type", "ip", "port", "user", "password"]
+      },
+      "returns": {
+        "message": "Confirmación de conexión establecida."
+      },
+      "notas_para_ia": "Normalmente no necesitas llamar a esto — el usuario ya ha configurado la red antes de iniciar el agente. Solo llámalo si recibes errores de conectividad en scan_network."
+    }
+  ],
+
+  "estrategias_recomendadas": {
+    "linux_general": [
+      "scan_network → scan_host → find_vulns → exploit (prioriza critical) → run_command('whoami') → privesc si no es root → close_session"
+    ],
+    "ssh_expuesto": [
+      "scan_host → si SSH detectado y versión antigua → ssh_brute → run_command('whoami') → close_session"
+    ],
+    "multiples_hosts": [
+      "scan_network → para cada host: scan_host → find_vulns → exploit → si falla: ssh_brute → close_session"
+    ],
+    "criterio_prioridad_cve": [
+      "critical > high > medium",
+      "FTP backdoor (CVE-2011-2523) y Samba usermap (CVE-2007-2447) → casi siempre funcionan en labs",
+      "EternalBlue (CVE-2017-0144) → solo Windows con SMB expuesto",
+      "SSH brute → último recurso si los exploits fallan"
+    ]
+  }
+}
